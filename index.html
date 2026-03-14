@@ -1,0 +1,481 @@
+<!DOCTYPE html>    
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HLTV Mapstats — мобильная версия</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: linear-gradient(to bottom, #d7dce3);
+      font-family: Arial, sans-serif;
+      padding: 16px;
+    }
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 500px;
+      width: 100%;
+      margin: 0 auto 24px;
+    }
+    .controls label {
+      display: flex;
+      flex-direction: column;
+      font-size: 16px;
+    }
+    .controls input,
+    .controls textarea,
+    .controls select {
+      margin-top: 4px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 19px;
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .controls textarea {
+      height: 200px;
+      resize: vertical;
+    }
+    .controls button {
+      padding: 20px;
+      font-size: 20px;
+      cursor: pointer;
+      width: 100%;
+      border: none;
+      background: linear-gradient(to right, #1a2f40, #2d3f52);
+      color: #fff;
+      border-radius: 6px;
+      transition: background 0.3s ease;
+    }
+    .controls button:hover {
+      background: linear-gradient(to right, #2d3f52, #1a2f40);
+    }
+    .board {
+      position: relative;
+      width: 100%;
+      max-width: 521px;
+      margin: 0 auto;
+      background: linear-gradient(to bottom, #f0f4f8, #dce3ea);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-radius: 0px;
+      padding-bottom: 0px;
+      overflow-x: auto;
+    }
+    /* Универсальный оверлей для любой карты */
+    .map-overlay {
+      display: none;
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 100;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      pointer-events: none;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px;
+    }
+    .logo { max-width: 36px; max-height: 36px; }
+    .tournament-name {
+      font-size: 21px;
+      font-weight: bold;
+      text-align: center;
+      flex-grow: 1;
+      margin: 0 8px;
+      word-break: break-word;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    thead {
+      background: linear-gradient(to right, #1a2f40, #dc143c);
+      color: #fff;
+    }
+    th, td {
+      border-bottom: 1px solid #ccd3dc;
+      padding: 8px;
+      text-align: center;
+      font-size: 15px;
+      white-space: nowrap;
+    }
+    th.team-name, td.team-name { text-align: left; }
+    col.score { width: 10%; }
+    col.team { width: 26%; }
+    col.stat { width: 10%; }
+    col.stat.kast { width: 15%; }
+    col.stat.adr { width: 10%; }
+    col.rating { width: 19%; }
+    td.rating-low { color: #c0392b; }
+    td.rating-high { color: #27ae60; }
+    .map-name {
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .current-score {
+      background-color: #1a2f40;
+      color: #FFF;
+      font-weight: bold;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+
+<div class="controls">
+  <!-- Inputs -->
+  <label>Название турнира:<input type="text" id="tournamentInput" value="EPL S22 Europe Closed Qualifier" /></label>
+  <label>URL логотипа слева:<input type="text" id="logoLeftInput" value="https://i.postimg.cc/FKc97q4Q/2.png" /></label>
+  <label>URL логотипа справа:<input type="text" id="logoRightInput" value="https://i.postimg.cc/JnRCsqYT/EPL20.png" /></label>
+  <label>Счёт первой команды:<input type="number" id="score1Input" value="13" /></label>
+  <label>Счёт второй команды:<input type="number" id="score2Input" value="9" /></label>
+  <label>Название карты:
+    <select id="mapInput">
+      <option value="INFERNO">INFERNO</option>
+      <option value="DUST_2">DUST_2</option>
+      <option value="TRAIN">TRAIN</option>
+      <option value="NUKE">NUKE</option>
+      <option value="ANCIENT">ANCIENT</option>
+      <option value="OVERPASS">OVERPASS</option>
+      <option value="MIRAGE">MIRAGE</option>
+    </select>
+  </label>
+  <label>Данные команд:
+    <textarea id="inputData" rows="10">MOUZ	K	A	D	ADR	KAST	Swing	Rating
+3.0
+Jimpphat
+23	3	14	87.6	62.5%	+1.21%	1.34
+Spinx
+15	5	14	67.8	75.0%	+1.96%	1.07
+xertioN
+16	7	16	71.1	70.8%	-2.94%	0.87
+torzsi
+12	5	14	60.1	79.2%	-3.03%	0.80
+Brollan
+10	4	14	49.2	66.7%	-6.11%	0.62
+FUT	K	A	D	ADR	KAST	Swing	Rating
+3.0
+Krabeni
+16	6	17	77.2	70.8%	+4.92%	1.37
+lauNX
+16	10	14	70.4	79.2%	+3.71%	1.24
+dziugss
+12	7	14	56.1	75.0%	+1.33%	0.96
+cmtry
+14	5	14	67.5	54.2%	-1.24%	0.94
+dem0n
+12	5	17	58.8	75.0%	+0.19%	0.87</textarea>
+  </label>
+  <button id="updateBtn">Обновить статистику</button>
+  <button id="downloadBtn">Скачать как изображение</button>
+  <button id="shareBtn">Поделиться</button>
+</div>
+
+<div class="board" id="board">
+  <!-- Универсальный оверлей для карты -->
+  <div class="map-overlay" id="mapOverlay"></div>
+  
+  <div class="header">
+    <img id="logoLeft" class="logo" src="" crossOrigin="anonymous" alt="Logo Left" />
+    <h1 id="tournamentName" class="tournament-name"></h1>
+    <img id="logoRight" class="logo" src="" crossOrigin="anonymous" alt="Logo Right" />
+  </div>
+  
+  <table>
+    <colgroup>
+      <col class="score">
+      <col class="team">
+      <col class="stat"><!-- K -->
+      <col class="stat"><!-- A -->
+      <col class="stat"><!-- D -->
+      <col class="stat adr"><!-- ADR -->
+      <col class="stat kast"><!-- KAST -->
+      <col class="rating"><!-- Rating -->
+    </colgroup>
+    <thead>
+      <tr>
+        <th id="score1" class="current-score">0</th>
+        <th id="team1Name" class="team-name">Team1</th>
+        <th>K</th>
+        <th>A</th>
+        <th>D</th>
+        <th>ADR</th>
+        <th>KAST</th>
+        <th>Rating</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <table>
+    <colgroup>
+      <col class="score">
+      <col class="team">
+      <col class="stat"><!-- K -->
+      <col class="stat"><!-- A -->
+      <col class="stat"><!-- D -->
+      <col class="stat adr"><!-- ADR -->
+      <col class="stat kast"><!-- KAST -->
+      <col class="rating"><!-- Rating -->
+    </colgroup>
+    <thead>
+      <tr>
+        <th id="score2" class="current-score">0</th>
+        <th id="team2Name" class="team-name">Team2</th>
+        <th>K</th>
+        <th>A</th>
+        <th>D</th>
+        <th>ADR</th>
+        <th>KAST</th>
+        <th>Rating</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div id="mapName" class="map-name">INFERNO</div>
+</div>
+
+<script>
+  // Объект с ссылками на картинки для каждой карты
+  const mapOverlays = {
+    INFERNO: 'https://i.postimg.cc/CLvSccpB/CSPORTS-NEWS.png',
+    DUST_2: 'https://i.postimg.cc/L6ZB4b4L/CSPORTS-NEWS.png',
+    TRAIN: 'https://i.postimg.cc/CxsvYQJJ/CSPORTS-NEWS.png',
+    NUKE: 'https://i.postimg.cc/xC3jPYPM/CSPORTS-NEWS.png',
+    ANCIENT: 'https://i.postimg.cc/rshrQ591/CSPORTS-NEWS.png',
+    OVERPASS: 'https://i.postimg.cc/rmzb8zMb/OVERPASS.png',
+    MIRAGE: 'https://i.postimg.cc/x8HdbH4j/CSPORTS-NEWS.png'
+  };
+
+  function updateStats() {
+    const tournamentName = document.getElementById('tournamentInput').value;
+    const logoLeft = document.getElementById('logoLeftInput').value;
+    const logoRight = document.getElementById('logoRightInput').value;
+    const score1 = document.getElementById('score1Input').value;
+    const score2 = document.getElementById('score2Input').value;
+    const map = document.getElementById('mapInput').value;
+    const data = document.getElementById('inputData').value;
+
+    document.getElementById('tournamentName').textContent = tournamentName;
+    document.getElementById('logoLeft').src = logoLeft;
+    document.getElementById('logoRight').src = logoRight;
+    document.getElementById('score1').textContent = score1;
+    document.getElementById('score2').textContent = score2;
+    document.getElementById('mapName').textContent = map;
+
+    const overlayDiv = document.getElementById('mapOverlay');
+
+    // Если для карты есть оверлей, показываем и задаём фон
+    if (mapOverlays[map]) {
+      overlayDiv.style.backgroundImage = `url('${mapOverlays[map]}')`;
+      overlayDiv.style.display = 'block';
+    } else {
+      overlayDiv.style.display = 'none';
+      overlayDiv.style.backgroundImage = '';
+    }
+
+    // Разбираем данные
+    const lines = data.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    
+    // Находим разделитель между командами (строку с FUT или вторую команду)
+    let team1Lines = [];
+    let team2Lines = [];
+    let team1Name = '';
+    let team2Name = '';
+    
+    // Первая строка - название первой команды и заголовки
+    const firstLine = lines[0];
+    const firstLineParts = firstLine.split(/\s+/);
+    team1Name = firstLineParts[0]; // MOUZ
+    
+    // Ищем начало второй команды (строка, где есть название команды и K A D)
+    let secondTeamIndex = -1;
+    for (let i = 1; i < lines.length; i++) {
+      // Если строка содержит K A D и не содержит цифры как основной контент
+      if (lines[i].includes('K') && lines[i].includes('A') && lines[i].includes('D')) {
+        const parts = lines[i].split(/\s+/);
+        // Проверяем, что первый элемент не число (это название команды)
+        if (isNaN(parseFloat(parts[0]))) {
+          secondTeamIndex = i;
+          team2Name = parts[0];
+          break;
+        }
+      }
+    }
+    
+    if (secondTeamIndex === -1) {
+      // Если не нашли по заголовку, пробуем найти по наличию FUT или другой команды
+      for (let i = 5; i < lines.length; i++) {
+        if (lines[i].includes('FUT') || lines[i].includes('FUT	')) {
+          secondTeamIndex = i;
+          const parts = lines[i].split(/\s+/);
+          team2Name = parts[0];
+          break;
+        }
+      }
+    }
+    
+    // Собираем данные первой команды (от строки 2 до secondTeamIndex-1)
+    if (secondTeamIndex > 0) {
+      // Пропускаем первую строку (заголовок) и строку с 3.0 (версия)
+      let currentIdx = 1;
+      // Пропускаем строку с версией (3.0)
+      if (currentIdx < lines.length && !isNaN(parseFloat(lines[currentIdx])) && lines[currentIdx].split(/\s+/).length === 1) {
+        currentIdx++;
+      }
+      
+      // Собираем 5 игроков
+      for (let i = 0; i < 5; i++) {
+        if (currentIdx < lines.length) {
+          const playerName = lines[currentIdx++];
+          if (currentIdx < lines.length) {
+            const stats = lines[currentIdx++].split(/\s+/);
+            team1Lines.push({ name: playerName, stats: stats });
+          }
+        }
+      }
+      
+      // Переходим ко второй команде
+      currentIdx = secondTeamIndex + 1;
+      // Пропускаем строку с версией (3.0)
+      if (currentIdx < lines.length && !isNaN(parseFloat(lines[currentIdx])) && lines[currentIdx].split(/\s+/).length === 1) {
+        currentIdx++;
+      }
+      
+      // Собираем 5 игроков второй команды
+      for (let i = 0; i < 5; i++) {
+        if (currentIdx < lines.length) {
+          const playerName = lines[currentIdx++];
+          if (currentIdx < lines.length) {
+            const stats = lines[currentIdx++].split(/\s+/);
+            team2Lines.push({ name: playerName, stats: stats });
+          }
+        }
+      }
+    }
+    
+    // Заполняем первую таблицу
+    const table1 = document.querySelectorAll('.board table')[0];
+    document.getElementById('team1Name').textContent = team1Name || 'Team1';
+    
+    const tbody1 = table1.querySelector('tbody');
+    const rows1 = tbody1.querySelectorAll('tr');
+    
+    for (let i = 0; i < 5; i++) {
+      if (i < team1Lines.length) {
+        const player = team1Lines[i];
+        const cols = rows1[i].querySelectorAll('td');
+        cols[0].textContent = player.name || '';
+        
+        // Заполняем статистику: K, A, D, ADR, KAST, Rating
+        if (player.stats && player.stats.length >= 6) {
+          cols[1].textContent = player.stats[0] || ''; // K
+          cols[2].textContent = player.stats[1] || ''; // A
+          cols[3].textContent = player.stats[2] || ''; // D
+          cols[4].textContent = player.stats[3] || ''; // ADR
+          cols[5].textContent = player.stats[4] || ''; // KAST
+          
+          const rating = parseFloat(player.stats[5] || player.stats[6] || '0');
+          cols[6].textContent = rating.toFixed(2);
+          cols[6].classList.toggle('rating-high', rating >= 1);
+          cols[6].classList.toggle('rating-low', rating < 1);
+        }
+      } else {
+        const cols = rows1[i].querySelectorAll('td');
+        for (let j = 0; j < cols.length; j++) {
+          cols[j].textContent = '';
+        }
+      }
+    }
+    
+    // Заполняем вторую таблицу
+    const table2 = document.querySelectorAll('.board table')[1];
+    document.getElementById('team2Name').textContent = team2Name || 'Team2';
+    
+    const tbody2 = table2.querySelector('tbody');
+    const rows2 = tbody2.querySelectorAll('tr');
+    
+    for (let i = 0; i < 5; i++) {
+      if (i < team2Lines.length) {
+        const player = team2Lines[i];
+        const cols = rows2[i].querySelectorAll('td');
+        cols[0].textContent = player.name || '';
+        
+        // Заполняем статистику
+        if (player.stats && player.stats.length >= 6) {
+          cols[1].textContent = player.stats[0] || ''; // K
+          cols[2].textContent = player.stats[1] || ''; // A
+          cols[3].textContent = player.stats[2] || ''; // D
+          cols[4].textContent = player.stats[3] || ''; // ADR
+          cols[5].textContent = player.stats[4] || ''; // KAST
+          
+          const rating = parseFloat(player.stats[5] || player.stats[6] || '0');
+          cols[6].textContent = rating.toFixed(2);
+          cols[6].classList.toggle('rating-high', rating >= 1);
+          cols[6].classList.toggle('rating-low', rating < 1);
+        }
+      } else {
+        const cols = rows2[i].querySelectorAll('td');
+        for (let j = 0; j < cols.length; j++) {
+          cols[j].textContent = '';
+        }
+      }
+    }
+  }
+
+  document.getElementById('updateBtn').addEventListener('click', updateStats);
+
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    html2canvas(document.getElementById('board'), { useCORS: true }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'mapstats-board.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  });
+
+  document.getElementById('shareBtn').addEventListener('click', async () => {
+    try {
+      const canvas = await html2canvas(document.getElementById('board'), { useCORS: true });
+      canvas.toBlob(async blob => {
+        const file = new File([blob], 'mapstats-board.png', { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file] });
+        } else {
+          alert('Ваш браузер не поддерживает Web Share API для файлов.');
+        }
+      });
+    } catch {
+      alert('Не удалось создать изображение для шаринга.');
+    }
+  });
+
+  // Можно сразу обновить, чтобы было видно начальное состояние
+  updateStats();
+</script>
+
+</body>
+</html>
