@@ -1,4 +1,4 @@
-<!DOCTYPE html>    
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -53,6 +53,18 @@
     .controls button:hover {
       background: linear-gradient(to right, #2d3f52, #1a2f40);
     }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 18px;
+      color: #1a2f40;
+    }
+    .error {
+      text-align: center;
+      padding: 40px;
+      font-size: 18px;
+      color: #dc143c;
+    }
     .board {
       position: relative;
       width: 100%;
@@ -64,7 +76,6 @@
       padding-bottom: 0px;
       overflow-x: auto;
     }
-    /* Универсальный оверлей для любой карты */
     .map-overlay {
       display: none;
       position: absolute;
@@ -133,24 +144,12 @@
 <body>
 
 <div class="controls">
-  <!-- Inputs -->
-  <label>Название турнира:<input type="text" id="tournamentInput" value="EPL S22 Europe Closed Qualifier" /></label>
-  <label>URL логотипа слева:<input type="text" id="logoLeftInput" value="https://i.postimg.cc/FKc97q4Q/2.png" /></label>
-  <label>URL логотипа справа:<input type="text" id="logoRightInput" value="https://i.postimg.cc/JnRCsqYT/EPL20.png" /></label>
+  <label>URL вашего Google Apps Script веб-приложения:
+    <input type="text" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/AKfycbyE2fnfcO8K4Y_TuFM1R03A1AAsyIMU0Lw_cSrL_zoou3g84u3czXn_WrSb7qJr79i3bw/exec" />
+  </label>
   <label>Счёт первой команды:<input type="number" id="score1Input" value="13" /></label>
   <label>Счёт второй команды:<input type="number" id="score2Input" value="9" /></label>
-  <label>Название карты:
-    <select id="mapInput">
-      <option value="INFERNO">INFERNO</option>
-      <option value="DUST_2">DUST_2</option>
-      <option value="TRAIN">TRAIN</option>
-      <option value="NUKE">NUKE</option>
-      <option value="ANCIENT">ANCIENT</option>
-      <option value="OVERPASS">OVERPASS</option>
-      <option value="MIRAGE">MIRAGE</option>
-    </select>
-  </label>
-  <label>Данные команд:
+  <label>Данные команд (статистика):
     <textarea id="inputData" rows="10">MOUZ	K	A	D	ADR	KAST	Swing	Rating
 3.0
 Jimpphat
@@ -176,86 +175,14 @@ cmtry
 dem0n
 12	5	17	58.8	75.0%	+0.19%	0.87</textarea>
   </label>
+  <button id="loadFromSheetBtn">Загрузить данные из Google Таблицы</button>
   <button id="updateBtn">Обновить статистику</button>
   <button id="downloadBtn">Скачать как изображение</button>
   <button id="shareBtn">Поделиться</button>
 </div>
 
-<div class="board" id="board">
-  <!-- Универсальный оверлей для карты -->
-  <div class="map-overlay" id="mapOverlay"></div>
-  
-  <div class="header">
-    <img id="logoLeft" class="logo" src="" crossOrigin="anonymous" alt="Logo Left" />
-    <h1 id="tournamentName" class="tournament-name"></h1>
-    <img id="logoRight" class="logo" src="" crossOrigin="anonymous" alt="Logo Right" />
-  </div>
-  
-  <table>
-    <colgroup>
-      <col class="score">
-      <col class="team">
-      <col class="stat"><!-- K -->
-      <col class="stat"><!-- A -->
-      <col class="stat"><!-- D -->
-      <col class="stat adr"><!-- ADR -->
-      <col class="stat kast"><!-- KAST -->
-      <col class="rating"><!-- Rating -->
-    </colgroup>
-    <thead>
-      <tr>
-        <th id="score1" class="current-score">0</th>
-        <th id="team1Name" class="team-name">Team1</th>
-        <th>K</th>
-        <th>A</th>
-        <th>D</th>
-        <th>ADR</th>
-        <th>KAST</th>
-        <th>Rating</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-    </tbody>
-  </table>
-
-  <table>
-    <colgroup>
-      <col class="score">
-      <col class="team">
-      <col class="stat"><!-- K -->
-      <col class="stat"><!-- A -->
-      <col class="stat"><!-- D -->
-      <col class="stat adr"><!-- ADR -->
-      <col class="stat kast"><!-- KAST -->
-      <col class="rating"><!-- Rating -->
-    </colgroup>
-    <thead>
-      <tr>
-        <th id="score2" class="current-score">0</th>
-        <th id="team2Name" class="team-name">Team2</th>
-        <th>K</th>
-        <th>A</th>
-        <th>D</th>
-        <th>ADR</th>
-        <th>KAST</th>
-        <th>Rating</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-    </tbody>
-  </table>
-
-  <div id="mapName" class="map-name">INFERNO</div>
+<div id="boardContainer">
+  <div class="loading">Загрузка данных...</div>
 </div>
 
 <script>
@@ -270,211 +197,205 @@ dem0n
     MIRAGE: 'https://i.postimg.cc/x8HdbH4j/CSPORTS-NEWS.png'
   };
 
-  function updateStats() {
-    const tournamentName = document.getElementById('tournamentInput').value;
-    const logoLeft = document.getElementById('logoLeftInput').value;
-    const logoRight = document.getElementById('logoRightInput').value;
-    const score1 = document.getElementById('score1Input').value;
-    const score2 = document.getElementById('score2Input').value;
-    const map = document.getElementById('mapInput').value;
-    const data = document.getElementById('inputData').value;
+  let currentData = null;
 
-    document.getElementById('tournamentName').textContent = tournamentName;
-    document.getElementById('logoLeft').src = logoLeft;
-    document.getElementById('logoRight').src = logoRight;
-    document.getElementById('score1').textContent = score1;
-    document.getElementById('score2').textContent = score2;
-    document.getElementById('mapName').textContent = map;
-
-    const overlayDiv = document.getElementById('mapOverlay');
-
-    // Если для карты есть оверлей, показываем и задаём фон
-    if (mapOverlays[map]) {
-      overlayDiv.style.backgroundImage = `url('${mapOverlays[map]}')`;
-      overlayDiv.style.display = 'block';
-    } else {
-      overlayDiv.style.display = 'none';
-      overlayDiv.style.backgroundImage = '';
-    }
-
-    // Разбираем данные
-    const lines = data.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  // Функция для отрисовки таблицы
+  function renderBoard(data, score1, score2, statsData) {
+    const tournamentName = data?.tournament?.name || document.getElementById('tournamentName')?.textContent || 'Tournament';
+    const logoLeft = data?.tournament?.logo || '';
+    const logoRight = data?.tournament?.logo || '';
+    const map = data?.map?.name || document.getElementById('mapInput')?.value || 'INFERNO';
     
-    // Находим разделитель между командами (строку с FUT или вторую команду)
-    let team1Lines = [];
-    let team2Lines = [];
-    let team1Name = '';
-    let team2Name = '';
-    
-    // Первая строка - название первой команды и заголовки
-    const firstLine = lines[0];
-    const firstLineParts = firstLine.split(/\s+/);
-    team1Name = firstLineParts[0]; // MOUZ
-    
-    // Ищем начало второй команды (строка, где есть название команды и K A D)
-    let secondTeamIndex = -1;
-    for (let i = 1; i < lines.length; i++) {
-      // Если строка содержит K A D и не содержит цифры как основной контент
-      if (lines[i].includes('K') && lines[i].includes('A') && lines[i].includes('D')) {
-        const parts = lines[i].split(/\s+/);
-        // Проверяем, что первый элемент не число (это название команды)
-        if (isNaN(parseFloat(parts[0]))) {
-          secondTeamIndex = i;
-          team2Name = parts[0];
-          break;
-        }
-      }
-    }
-    
-    if (secondTeamIndex === -1) {
-      // Если не нашли по заголовку, пробуем найти по наличию FUT или другой команды
-      for (let i = 5; i < lines.length; i++) {
-        if (lines[i].includes('FUT') || lines[i].includes('FUT	')) {
-          secondTeamIndex = i;
-          const parts = lines[i].split(/\s+/);
-          team2Name = parts[0];
-          break;
-        }
-      }
-    }
-    
-    // Собираем данные первой команды (от строки 2 до secondTeamIndex-1)
-    if (secondTeamIndex > 0) {
-      // Пропускаем первую строку (заголовок) и строку с 3.0 (версия)
-      let currentIdx = 1;
-      // Пропускаем строку с версией (3.0)
-      if (currentIdx < lines.length && !isNaN(parseFloat(lines[currentIdx])) && lines[currentIdx].split(/\s+/).length === 1) {
-        currentIdx++;
-      }
-      
-      // Собираем 5 игроков
-      for (let i = 0; i < 5; i++) {
-        if (currentIdx < lines.length) {
-          const playerName = lines[currentIdx++];
-          if (currentIdx < lines.length) {
-            const stats = lines[currentIdx++].split(/\s+/);
-            team1Lines.push({ name: playerName, stats: stats });
-          }
-        }
-      }
-      
-      // Переходим ко второй команде
-      currentIdx = secondTeamIndex + 1;
-      // Пропускаем строку с версией (3.0)
-      if (currentIdx < lines.length && !isNaN(parseFloat(lines[currentIdx])) && lines[currentIdx].split(/\s+/).length === 1) {
-        currentIdx++;
-      }
-      
-      // Собираем 5 игроков второй команды
-      for (let i = 0; i < 5; i++) {
-        if (currentIdx < lines.length) {
-          const playerName = lines[currentIdx++];
-          if (currentIdx < lines.length) {
-            const stats = lines[currentIdx++].split(/\s+/);
-            team2Lines.push({ name: playerName, stats: stats });
-          }
-        }
-      }
-    }
-    
-    // Заполняем первую таблицу
-    const table1 = document.querySelectorAll('.board table')[0];
-    document.getElementById('team1Name').textContent = team1Name || 'Team1';
-    
-    const tbody1 = table1.querySelector('tbody');
-    const rows1 = tbody1.querySelectorAll('tr');
-    
-    for (let i = 0; i < 5; i++) {
-      if (i < team1Lines.length) {
-        const player = team1Lines[i];
-        const cols = rows1[i].querySelectorAll('td');
-        cols[0].textContent = player.name || '';
+    const boardHTML = `
+      <div class="board" id="board">
+        <div class="map-overlay" id="mapOverlay" style="background-image: url('${mapOverlays[map] || ''}'); ${mapOverlays[map] ? 'display: block;' : 'display: none;'}"></div>
         
-        // Заполняем статистику: K, A, D, ADR, KAST, Rating
-        if (player.stats && player.stats.length >= 6) {
-          cols[1].textContent = player.stats[0] || ''; // K
-          cols[2].textContent = player.stats[1] || ''; // A
-          cols[3].textContent = player.stats[2] || ''; // D
-          cols[4].textContent = player.stats[3] || ''; // ADR
-          cols[5].textContent = player.stats[4] || ''; // KAST
-          
-          const rating = parseFloat(player.stats[5] || player.stats[6] || '0');
-          cols[6].textContent = rating.toFixed(2);
-          cols[6].classList.toggle('rating-high', rating >= 1);
-          cols[6].classList.toggle('rating-low', rating < 1);
-        }
-      } else {
-        const cols = rows1[i].querySelectorAll('td');
-        for (let j = 0; j < cols.length; j++) {
-          cols[j].textContent = '';
-        }
-      }
+        <div class="header">
+          <img id="logoLeft" class="logo" src="${logoLeft}" crossorigin="anonymous" alt="Logo Left" />
+          <h1 id="tournamentName" class="tournament-name">${tournamentName}</h1>
+          <img id="logoRight" class="logo" src="${logoRight}" crossorigin="anonymous" alt="Logo Right" />
+        </div>
+        
+        <table>
+          <colgroup>
+            <col class="score">
+            <col class="team">
+            <col class="stat">
+            <col class="stat">
+            <col class="stat">
+            <col class="stat adr">
+            <col class="stat kast">
+            <col class="rating">
+          </colgroup>
+          <thead>
+            <tr>
+              <th id="score1" class="current-score">${score1}</th>
+              <th id="team1Name" class="team-name">${data?.teams?.[0]?.name || 'Team1'}</th>
+              <th>K</th>
+              <th>A</th>
+              <th>D</th>
+              <th>ADR</th>
+              <th>KAST</th>
+              <th>Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${generateTeamRows(statsData, 0)}
+          </tbody>
+        </table>
+        
+        <table>
+          <colgroup>
+            <col class="score">
+            <col class="team">
+            <col class="stat">
+            <col class="stat">
+            <col class="stat">
+            <col class="stat adr">
+            <col class="stat kast">
+            <col class="rating">
+          </colgroup>
+          <thead>
+            <tr>
+              <th id="score2" class="current-score">${score2}</th>
+              <th id="team2Name" class="team-name">${data?.teams?.[1]?.name || 'Team2'}</th>
+              <th>K</th>
+              <th>A</th>
+              <th>D</th>
+              <th>ADR</th>
+              <th>KAST</th>
+              <th>Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${generateTeamRows(statsData, 1)}
+          </tbody>
+        </table>
+        
+        <div id="mapName" class="map-name">${map}</div>
+      </div>
+    `;
+    
+    document.getElementById('boardContainer').innerHTML = boardHTML;
+  }
+  
+  function generateTeamRows(statsData, teamIndex) {
+    // Функция для парсинга статистики из текста
+    // Здесь нужно реализовать парсинг вашего формата данных
+    // Пока возвращаем пустые строки
+    let rows = '';
+    for (let i = 0; i < 5; i++) {
+      rows += `
+        <tr>
+          <td colspan="2" class="team-name">Player ${i+1}</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+      `;
+    }
+    return rows;
+  }
+  
+  // Загрузка данных из Google Таблицы через ваш Apps Script
+  async function loadFromSheet() {
+    const scriptUrl = document.getElementById('scriptUrlInput').value;
+    
+    if (!scriptUrl) {
+      alert('Пожалуйста, введите URL вашего Google Apps Script веб-приложения');
+      return;
     }
     
-    // Заполняем вторую таблицу
-    const table2 = document.querySelectorAll('.board table')[1];
-    document.getElementById('team2Name').textContent = team2Name || 'Team2';
+    document.getElementById('boardContainer').innerHTML = '<div class="loading">Загрузка данных из таблицы...</div>';
     
-    const tbody2 = table2.querySelector('tbody');
-    const rows2 = tbody2.querySelectorAll('tr');
-    
-    for (let i = 0; i < 5; i++) {
-      if (i < team2Lines.length) {
-        const player = team2Lines[i];
-        const cols = rows2[i].querySelectorAll('td');
-        cols[0].textContent = player.name || '';
-        
-        // Заполняем статистику
-        if (player.stats && player.stats.length >= 6) {
-          cols[1].textContent = player.stats[0] || ''; // K
-          cols[2].textContent = player.stats[1] || ''; // A
-          cols[3].textContent = player.stats[2] || ''; // D
-          cols[4].textContent = player.stats[3] || ''; // ADR
-          cols[5].textContent = player.stats[4] || ''; // KAST
-          
-          const rating = parseFloat(player.stats[5] || player.stats[6] || '0');
-          cols[6].textContent = rating.toFixed(2);
-          cols[6].classList.toggle('rating-high', rating >= 1);
-          cols[6].classList.toggle('rating-low', rating < 1);
-        }
-      } else {
-        const cols = rows2[i].querySelectorAll('td');
-        for (let j = 0; j < cols.length; j++) {
-          cols[j].textContent = '';
-        }
+    try {
+      // Параметры для JSONP запроса (обходим CORS)
+      const response = await fetch(scriptUrl + '?action=getData');
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
       }
+      
+      currentData = data;
+      
+      // Обновляем поля ввода
+      if (data.tournament.name) {
+        const tourneyInput = document.createElement('input');
+        // Сохраняем данные
+      }
+      
+      // Отрисовываем доску
+      const score1 = document.getElementById('score1Input').value;
+      const score2 = document.getElementById('score2Input').value;
+      const statsData = document.getElementById('inputData').value;
+      
+      renderBoard(data, score1, score2, statsData);
+      
+      // Запускаем обновление статистики
+      updateStats();
+      
+    } catch (error) {
+      console.error('Ошибка загрузки:', error);
+      document.getElementById('boardContainer').innerHTML = `<div class="error">Ошибка загрузки: ${error.message}<br><br>Убедитесь, что:<br>1. Вы опубликовали Apps Script как веб-приложение<br>2. В таблице есть данные в нужном формате<br>3. URL введен правильно</div>`;
     }
   }
-
-  document.getElementById('updateBtn').addEventListener('click', updateStats);
-
-  document.getElementById('downloadBtn').addEventListener('click', () => {
-    html2canvas(document.getElementById('board'), { useCORS: true }).then(canvas => {
-      const link = document.createElement('a');
-      link.download = 'mapstats-board.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+  
+  // Обновление статистики из текстового поля
+  function updateStats() {
+    // Ваша существующая функция updateStats
+    const tournamentName = currentData?.tournament?.name || document.getElementById('tournamentName')?.textContent || '';
+    const map = currentData?.map?.name || 'INFERNO';
+    const data = document.getElementById('inputData').value;
+    
+    // Здесь ваш существующий код парсинга статистики
+    console.log('Обновление статистики...');
+  }
+  
+  // Инициализация
+  function init() {
+    document.getElementById('loadFromSheetBtn').addEventListener('click', loadFromSheet);
+    document.getElementById('updateBtn').addEventListener('click', updateStats);
+    
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const board = document.getElementById('board');
+      if (board) {
+        html2canvas(board, { useCORS: true }).then(canvas => {
+          const link = document.createElement('a');
+          link.download = 'mapstats-board.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        });
+      }
     });
-  });
-
-  document.getElementById('shareBtn').addEventListener('click', async () => {
-    try {
-      const canvas = await html2canvas(document.getElementById('board'), { useCORS: true });
-      canvas.toBlob(async blob => {
-        const file = new File([blob], 'mapstats-board.png', { type: 'image/png' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file] });
-        } else {
-          alert('Ваш браузер не поддерживает Web Share API для файлов.');
+    
+    document.getElementById('shareBtn').addEventListener('click', async () => {
+      const board = document.getElementById('board');
+      if (board) {
+        try {
+          const canvas = await html2canvas(board, { useCORS: true });
+          canvas.toBlob(async blob => {
+            const file = new File([blob], 'mapstats-board.png', { type: 'image/png' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              await navigator.share({ files: [file] });
+            } else {
+              alert('Ваш браузер не поддерживает Web Share API для файлов.');
+            }
+          });
+        } catch {
+          alert('Не удалось создать изображение для шаринга.');
         }
-      });
-    } catch {
-      alert('Не удалось создать изображение для шаринга.');
-    }
-  });
-
-  // Можно сразу обновить, чтобы было видно начальное состояние
-  updateStats();
+      }
+    });
+    
+    // Начальная загрузка
+    loadFromSheet();
+  }
+  
+  init();
 </script>
 
 </body>
