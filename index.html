@@ -1,4 +1,4 @@
- <!DOCTYPE html>    
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -53,6 +53,10 @@
     .controls button:hover {
       background: linear-gradient(to right, #2d3f52, #1a2f40);
     }
+    .controls button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
     .board {
       position: relative;
       width: 100%;
@@ -64,7 +68,6 @@
       padding-bottom: 0px;
       overflow-x: auto;
     }
-    /* Универсальный оверлей для любой карты */
     .map-overlay {
       display: none;
       position: absolute;
@@ -83,6 +86,12 @@
       padding: 8px;
     }
     .logo { max-width: 36px; max-height: 36px; }
+    .team-logo-img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      margin-right: 6px;
+    }
     .tournament-name {
       font-size: 21px;
       font-weight: bold;
@@ -127,13 +136,59 @@
       color: #FFF;
       font-weight: bold;
     }
+    .team-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status {
+      max-width: 500px;
+      margin: 10px auto;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+      display: block;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 
 <div class="controls">
-  <!-- Inputs -->
   <label>Название турнира:<input type="text" id="tournamentInput" value="EPL S22 Europe Closed Qualifier" /></label>
   <label>URL логотипа слева:<input type="text" id="logoLeftInput" value="https://i.postimg.cc/FKc97q4Q/2.png" /></label>
   <label>URL логотипа справа:<input type="text" id="logoRightInput" value="https://i.postimg.cc/JnRCsqYT/EPL20.png" /></label>
@@ -179,33 +234,35 @@ dem0n
   <button id="updateBtn">Обновить статистику</button>
   <button id="downloadBtn">Скачать как изображение</button>
   <button id="shareBtn">Поделиться</button>
+  <button id="loadFromSheetBtn">📊 Загрузить команды из таблицы</button>
 </div>
 
+<div id="statusMessage" class="status"></div>
+
 <div class="board" id="board">
-  <!-- Универсальный оверлей для карты -->
   <div class="map-overlay" id="mapOverlay"></div>
   
   <div class="header">
-    <img id="logoLeft" class="logo" src="" crossOrigin="anonymous" alt="Logo Left" />
+    <img id="logoLeft" class="logo" src="" crossorigin="anonymous" alt="Logo Left" />
     <h1 id="tournamentName" class="tournament-name"></h1>
-    <img id="logoRight" class="logo" src="" crossOrigin="anonymous" alt="Logo Right" />
+    <img id="logoRight" class="logo" src="" crossorigin="anonymous" alt="Logo Right" />
   </div>
   
   <table>
     <colgroup>
       <col class="score">
       <col class="team">
-      <col class="stat"><!-- K -->
-      <col class="stat"><!-- A -->
-      <col class="stat"><!-- D -->
-      <col class="stat adr"><!-- ADR -->
-      <col class="stat kast"><!-- KAST -->
-      <col class="rating"><!-- Rating -->
+      <col class="stat">
+      <col class="stat">
+      <col class="stat">
+      <col class="stat adr">
+      <col class="stat kast">
+      <col class="rating">
     </colgroup>
     <thead>
       <tr>
         <th id="score1" class="current-score">0</th>
-        <th id="team1Name" class="team-name">Team1</th>
+        <th id="team1Header" class="team-name">Team1</th>
         <th>K</th>
         <th>A</th>
         <th>D</th>
@@ -214,12 +271,8 @@ dem0n
         <th>Rating</th>
       </tr>
     </thead>
-    <tbody>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tbody id="team1Body">
+      <!-- Данные первой команды -->
     </tbody>
   </table>
 
@@ -227,17 +280,17 @@ dem0n
     <colgroup>
       <col class="score">
       <col class="team">
-      <col class="stat"><!-- K -->
-      <col class="stat"><!-- A -->
-      <col class="stat"><!-- D -->
-      <col class="stat adr"><!-- ADR -->
-      <col class="stat kast"><!-- KAST -->
-      <col class="rating"><!-- Rating -->
+      <col class="stat">
+      <col class="stat">
+      <col class="stat">
+      <col class="stat adr">
+      <col class="stat kast">
+      <col class="rating">
     </colgroup>
     <thead>
       <tr>
         <th id="score2" class="current-score">0</th>
-        <th id="team2Name" class="team-name">Team2</th>
+        <th id="team2Header" class="team-name">Team2</th>
         <th>K</th>
         <th>A</th>
         <th>D</th>
@@ -246,12 +299,8 @@ dem0n
         <th>Rating</th>
       </tr>
     </thead>
-    <tbody>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-      <tr><td colspan="2" class="team-name"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tbody id="team2Body">
+      <!-- Данные второй команды -->
     </tbody>
   </table>
 
@@ -259,7 +308,8 @@ dem0n
 </div>
 
 <script>
-  // Объект с ссылками на картинки для каждой карты
+  let teamsData = [];
+
   const mapOverlays = {
     INFERNO: 'https://i.postimg.cc/CLvSccpB/CSPORTS-NEWS.png',
     DUST_2: 'https://i.postimg.cc/L6ZB4b4L/CSPORTS-NEWS.png',
@@ -269,6 +319,163 @@ dem0n
     OVERPASS: 'https://i.postimg.cc/rmzb8zMb/OVERPASS.png',
     MIRAGE: 'https://i.postimg.cc/x8HdbH4j/CSPORTS-NEWS.png'
   };
+
+  function showStatus(message, type) {
+    const statusDiv = document.getElementById('statusMessage');
+    statusDiv.textContent = message;
+    statusDiv.className = 'status ' + type;
+    setTimeout(() => {
+      if (statusDiv.className === 'status ' + type) {
+        statusDiv.style.display = 'none';
+        statusDiv.className = 'status';
+      }
+    }, 5000);
+  }
+
+  function createPlayerRow(playerName, stats, teamLogo = '') {
+    const row = document.createElement('tr');
+    
+    const nameCell = document.createElement('td');
+    nameCell.colSpan = 2;
+    nameCell.className = 'team-name';
+    
+    const teamDiv = document.createElement('div');
+    teamDiv.className = 'team-cell';
+    
+    if (teamLogo && teamLogo !== '') {
+      const logoImg = document.createElement('img');
+      logoImg.src = teamLogo;
+      logoImg.className = 'team-logo-img';
+      logoImg.alt = 'Логотип команды';
+      logoImg.onerror = function() { this.style.display = 'none'; };
+      teamDiv.appendChild(logoImg);
+    }
+    
+    const playerSpan = document.createElement('span');
+    playerSpan.textContent = playerName || '';
+    teamDiv.appendChild(playerSpan);
+    nameCell.appendChild(teamDiv);
+    row.appendChild(nameCell);
+    
+    for (let i = 0; i < 6; i++) {
+      const cell = document.createElement('td');
+      if (stats && stats[i]) {
+        if (i === 5) {
+          const rating = parseFloat(stats[i]);
+          cell.textContent = rating.toFixed(2);
+          cell.classList.toggle('rating-high', rating >= 1);
+          cell.classList.toggle('rating-low', rating < 1);
+        } else {
+          cell.textContent = stats[i];
+        }
+      } else {
+        cell.textContent = '';
+      }
+      row.appendChild(cell);
+    }
+    
+    return row;
+  }
+
+  function updateTeamHeader(teamHeaderElement, teamName, teamLogo) {
+    teamHeaderElement.innerHTML = '';
+    teamHeaderElement.className = 'team-name';
+    
+    const teamDiv = document.createElement('div');
+    teamDiv.className = 'team-cell';
+    
+    if (teamLogo && teamLogo !== '') {
+      const logoImg = document.createElement('img');
+      logoImg.src = teamLogo;
+      logoImg.className = 'team-logo-img';
+      logoImg.alt = 'Логотип команды';
+      logoImg.onerror = function() { 
+        console.log('Не удалось загрузить логотип:', teamLogo);
+        this.style.display = 'none'; 
+      };
+      teamDiv.appendChild(logoImg);
+    }
+    
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = teamName || '';
+    teamDiv.appendChild(nameSpan);
+    
+    teamHeaderElement.appendChild(teamDiv);
+  }
+
+  async function loadTeamsFromSheet() {
+    const loadButton = document.getElementById('loadFromSheetBtn');
+    const originalText = loadButton.textContent;
+    loadButton.textContent = '⏳ Загрузка...';
+    loadButton.disabled = true;
+    
+    showStatus('Загрузка данных из Google таблицы...', 'info');
+    
+    try {
+      // ID вашей Google таблицы и Web App URL
+      const SHEET_ID = '1PkOPifvbFmaTv5yCPEbILrFxLNPpplfjeVhnDUrwXVw';
+      // Используем Google Sheets API напрямую (публичная таблица)
+      const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq=SELECT%20A%2C%20B`;
+      
+      const response = await fetch(API_URL);
+      const text = await response.text();
+      
+      // Парсим JSONP ответ от Google
+      const jsonStart = text.indexOf('(');
+      const jsonEnd = text.lastIndexOf(')');
+      const jsonData = text.substring(jsonStart + 1, jsonEnd);
+      const data = JSON.parse(jsonData);
+      
+      const teams = [];
+      if (data.table && data.table.rows) {
+        for (let i = 0; i < data.table.rows.length; i++) {
+          const row = data.table.rows[i];
+          const teamName = row.c[0] ? row.c[0].v : null;
+          const logoUrl = row.c[1] ? row.c[1].v : null;
+          
+          if (teamName && teamName.toString().trim() !== '') {
+            teams.push({
+              name: teamName.toString().trim(),
+              logo: logoUrl ? logoUrl.toString().trim() : ''
+            });
+          }
+        }
+      }
+      
+      if (teams.length > 0) {
+        teamsData = teams;
+        showStatus(`✅ Успешно загружено ${teams.length} команд(ы) из таблицы!\n\nКоманды: ${teams.map(t => t.name).join(', ')}`, 'success');
+        
+        // Обновляем отображение
+        updateStats();
+      } else {
+        showStatus('⚠️ В таблице не найдено команд. Убедитесь, что данные начинаются со строки 2 в колонках A и B, и таблица опубликована как веб-страница.', 'error');
+      }
+    } catch (error) {
+      console.error('Ошибка:', error);
+      showStatus('❌ Ошибка при загрузке: ' + error.message + '\n\nУбедитесь, что таблица опубликована:\nФайл → Поделиться → Опубликовать в интернете → Как веб-страницу', 'error');
+    } finally {
+      loadButton.textContent = originalText;
+      loadButton.disabled = false;
+    }
+  }
+
+  function getTeamLogo(teamName) {
+    if (!teamName || !teamsData.length) return '';
+    
+    let team = teamsData.find(t => 
+      t.name.toLowerCase() === teamName.toLowerCase()
+    );
+    
+    if (!team) {
+      team = teamsData.find(t => 
+        teamName.toLowerCase().includes(t.name.toLowerCase()) ||
+        t.name.toLowerCase().includes(teamName.toLowerCase())
+      );
+    }
+    
+    return team ? team.logo : '';
+  }
 
   function updateStats() {
     const tournamentName = document.getElementById('tournamentInput').value;
@@ -287,8 +494,6 @@ dem0n
     document.getElementById('mapName').textContent = map;
 
     const overlayDiv = document.getElementById('mapOverlay');
-
-    // Если для карты есть оверлей, показываем и задаём фон
     if (mapOverlays[map]) {
       overlayDiv.style.backgroundImage = `url('${mapOverlays[map]}')`;
       overlayDiv.style.display = 'block';
@@ -297,27 +502,21 @@ dem0n
       overlayDiv.style.backgroundImage = '';
     }
 
-    // Разбираем данные
     const lines = data.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     
-    // Находим разделитель между командами (строку с FUT или вторую команду)
     let team1Lines = [];
     let team2Lines = [];
     let team1Name = '';
     let team2Name = '';
     
-    // Первая строка - название первой команды и заголовки
     const firstLine = lines[0];
     const firstLineParts = firstLine.split(/\s+/);
-    team1Name = firstLineParts[0]; // MOUZ
+    team1Name = firstLineParts[0];
     
-    // Ищем начало второй команды (строка, где есть название команды и K A D)
     let secondTeamIndex = -1;
     for (let i = 1; i < lines.length; i++) {
-      // Если строка содержит K A D и не содержит цифры как основной контент
       if (lines[i].includes('K') && lines[i].includes('A') && lines[i].includes('D')) {
         const parts = lines[i].split(/\s+/);
-        // Проверяем, что первый элемент не число (это название команды)
         if (isNaN(parseFloat(parts[0]))) {
           secondTeamIndex = i;
           team2Name = parts[0];
@@ -327,9 +526,8 @@ dem0n
     }
     
     if (secondTeamIndex === -1) {
-      // Если не нашли по заголовку, пробуем найти по наличию FUT или другой команды
       for (let i = 5; i < lines.length; i++) {
-        if (lines[i].includes('FUT') || lines[i].includes('FUT	')) {
+        if (lines[i].toUpperCase().includes('FUT')) {
           secondTeamIndex = i;
           const parts = lines[i].split(/\s+/);
           team2Name = parts[0];
@@ -338,16 +536,12 @@ dem0n
       }
     }
     
-    // Собираем данные первой команды (от строки 2 до secondTeamIndex-1)
     if (secondTeamIndex > 0) {
-      // Пропускаем первую строку (заголовок) и строку с 3.0 (версия)
       let currentIdx = 1;
-      // Пропускаем строку с версией (3.0)
       if (currentIdx < lines.length && !isNaN(parseFloat(lines[currentIdx])) && lines[currentIdx].split(/\s+/).length === 1) {
         currentIdx++;
       }
       
-      // Собираем 5 игроков
       for (let i = 0; i < 5; i++) {
         if (currentIdx < lines.length) {
           const playerName = lines[currentIdx++];
@@ -358,14 +552,11 @@ dem0n
         }
       }
       
-      // Переходим ко второй команде
       currentIdx = secondTeamIndex + 1;
-      // Пропускаем строку с версией (3.0)
       if (currentIdx < lines.length && !isNaN(parseFloat(lines[currentIdx])) && lines[currentIdx].split(/\s+/).length === 1) {
         currentIdx++;
       }
       
-      // Собираем 5 игроков второй команды
       for (let i = 0; i < 5; i++) {
         if (currentIdx < lines.length) {
           const playerName = lines[currentIdx++];
@@ -377,103 +568,84 @@ dem0n
       }
     }
     
-    // Заполняем первую таблицу
-    const table1 = document.querySelectorAll('.board table')[0];
-    document.getElementById('team1Name').textContent = team1Name || 'Team1';
+    const team1Logo = getTeamLogo(team1Name);
+    const team2Logo = getTeamLogo(team2Name);
     
-    const tbody1 = table1.querySelector('tbody');
-    const rows1 = tbody1.querySelectorAll('tr');
+    updateTeamHeader(document.getElementById('team1Header'), team1Name, team1Logo);
+    updateTeamHeader(document.getElementById('team2Header'), team2Name, team2Logo);
+    
+    const team1Body = document.getElementById('team1Body');
+    team1Body.innerHTML = '';
     
     for (let i = 0; i < 5; i++) {
       if (i < team1Lines.length) {
         const player = team1Lines[i];
-        const cols = rows1[i].querySelectorAll('td');
-        cols[0].textContent = player.name || '';
-        
-        // Заполняем статистику: K, A, D, ADR, KAST, Rating
-        if (player.stats && player.stats.length >= 6) {
-          cols[1].textContent = player.stats[0] || ''; // K
-          cols[2].textContent = player.stats[1] || ''; // A
-          cols[3].textContent = player.stats[2] || ''; // D
-          cols[4].textContent = player.stats[3] || ''; // ADR
-          cols[5].textContent = player.stats[4] || ''; // KAST
-          
-          const rating = parseFloat(player.stats[5] || player.stats[6] || '0');
-          cols[6].textContent = rating.toFixed(2);
-          cols[6].classList.toggle('rating-high', rating >= 1);
-          cols[6].classList.toggle('rating-low', rating < 1);
-        }
+        const row = createPlayerRow(player.name, player.stats, team1Logo);
+        team1Body.appendChild(row);
       } else {
-        const cols = rows1[i].querySelectorAll('td');
-        for (let j = 0; j < cols.length; j++) {
-          cols[j].textContent = '';
-        }
+        const row = createPlayerRow('', []);
+        team1Body.appendChild(row);
       }
     }
     
-    // Заполняем вторую таблицу
-    const table2 = document.querySelectorAll('.board table')[1];
-    document.getElementById('team2Name').textContent = team2Name || 'Team2';
-    
-    const tbody2 = table2.querySelector('tbody');
-    const rows2 = tbody2.querySelectorAll('tr');
+    const team2Body = document.getElementById('team2Body');
+    team2Body.innerHTML = '';
     
     for (let i = 0; i < 5; i++) {
       if (i < team2Lines.length) {
         const player = team2Lines[i];
-        const cols = rows2[i].querySelectorAll('td');
-        cols[0].textContent = player.name || '';
-        
-        // Заполняем статистику
-        if (player.stats && player.stats.length >= 6) {
-          cols[1].textContent = player.stats[0] || ''; // K
-          cols[2].textContent = player.stats[1] || ''; // A
-          cols[3].textContent = player.stats[2] || ''; // D
-          cols[4].textContent = player.stats[3] || ''; // ADR
-          cols[5].textContent = player.stats[4] || ''; // KAST
-          
-          const rating = parseFloat(player.stats[5] || player.stats[6] || '0');
-          cols[6].textContent = rating.toFixed(2);
-          cols[6].classList.toggle('rating-high', rating >= 1);
-          cols[6].classList.toggle('rating-low', rating < 1);
-        }
+        const row = createPlayerRow(player.name, player.stats, team2Logo);
+        team2Body.appendChild(row);
       } else {
-        const cols = rows2[i].querySelectorAll('td');
-        for (let j = 0; j < cols.length; j++) {
-          cols[j].textContent = '';
-        }
+        const row = createPlayerRow('', []);
+        team2Body.appendChild(row);
       }
     }
   }
 
   document.getElementById('updateBtn').addEventListener('click', updateStats);
-
+  document.getElementById('loadFromSheetBtn').addEventListener('click', loadTeamsFromSheet);
+  
   document.getElementById('downloadBtn').addEventListener('click', () => {
-    html2canvas(document.getElementById('board'), { useCORS: true }).then(canvas => {
+    const btn = document.getElementById('downloadBtn');
+    btn.textContent = '⏳ Создание...';
+    html2canvas(document.getElementById('board'), { 
+      useCORS: true,
+      scale: 2,
+      backgroundColor: null
+    }).then(canvas => {
       const link = document.createElement('a');
       link.download = 'mapstats-board.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
+      btn.textContent = 'Скачать как изображение';
+    }).catch(() => {
+      btn.textContent = 'Скачать как изображение';
+      showStatus('Ошибка при создании изображения', 'error');
     });
   });
 
   document.getElementById('shareBtn').addEventListener('click', async () => {
     try {
-      const canvas = await html2canvas(document.getElementById('board'), { useCORS: true });
+      const canvas = await html2canvas(document.getElementById('board'), { useCORS: true, scale: 2 });
       canvas.toBlob(async blob => {
         const file = new File([blob], 'mapstats-board.png', { type: 'image/png' });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({ files: [file] });
         } else {
-          alert('Ваш браузер не поддерживает Web Share API для файлов.');
+          showStatus('Ваш браузер не поддерживает Web Share API для файлов. Используйте кнопку "Скачать".', 'info');
         }
       });
     } catch {
-      alert('Не удалось создать изображение для шаринга.');
+      showStatus('Не удалось создать изображение для шаринга', 'error');
     }
   });
 
-  // Можно сразу обновить, чтобы было видно начальное состояние
+  // Загружаем команды при загрузке страницы
+  setTimeout(() => {
+    loadTeamsFromSheet();
+  }, 500);
+
   updateStats();
 </script>
 
