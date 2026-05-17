@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -178,32 +178,20 @@
       font-weight: bold;
     }
 
-.team-cell {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Игроки */
-tbody .team-cell {
-  transform: translateX(12px);
-}
-
-/* Лого + название команд */
-thead .team-cell {
-  transform: translateX(-12px);
-}
-
-tbody .team-cell {
-  transform: translateX(12px);
-}
-
-    /* Сдвиг только логотипа и названия команды в заголовке */
-    .team-header-cell {
-      transform: translateX(-6px);
+    .team-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    /* Скрываем логотипы у игроков */
+    tbody .team-cell {
+      transform: translateX(12px);
+    }
+
+    thead .team-cell {
+      transform: translateX(-12px);
+    }
+
     tbody .team-cell .team-logo-img {
       display: none;
     }
@@ -238,23 +226,6 @@ tbody .team-cell {
       border: 1px solid #bee5eb;
       display: block;
     }
-
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #3498db;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-right: 10px;
-      vertical-align: middle;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -279,32 +250,13 @@ tbody .team-cell {
       <option value="MIRAGE">MIRAGE</option>
     </select>
   </label>
-  <label>Данные команд:
-    <textarea id="inputData" rows="10">MOUZ	K	A	D	ADR	KAST	Swing	Rating
-3.0
-Jimpphat
-23	3	14	87.6	62.5%	+1.21%	1.34
-Spinx
-15	5	14	67.8	75.0%	+1.96%	1.07
-xertioN
-16	7	16	71.1	70.8%	-2.94%	0.87
-torzsi
-12	5	14	60.1	79.2%	-3.03%	0.80
-Brollan
-10	4	14	49.2	66.7%	-6.11%	0.62
-FUT	K	A	D	ADR	KAST	Swing	Rating
-3.0
-Krabeni
-16	6	17	77.2	70.8%	+4.92%	1.37
-lauNX
-16	10	14	70.4	79.2%	+3.71%	1.24
-dziugss
-12	7	14	56.1	75.0%	+1.33%	0.96
-cmtry
-14	5	14	67.5	54.2%	-1.24%	0.94
-dem0n
-12	5	17	58.8	75.0%	+0.19%	0.87</textarea>
+  <label>Данные команд (поддерживается 2 формата):
+    <textarea id="inputData" rows="10"></textarea>
   </label>
+  <div style="display: flex; gap: 10px;">
+    <button id="loadExample1">Пример: Формат 1 (K A D ADR KAST)</button>
+    <button id="loadExample2">Пример: Формат 2 (K-D MKs KAST 1vsX)</button>
+  </div>
   <button id="updateBtn">Обновить статистику</button>
   <button id="downloadBtn">Скачать как изображение</button>
   <button id="shareBtn">Поделиться</button>
@@ -322,7 +274,6 @@ dem0n
     <img id="logoRight" class="logo" src="" crossorigin="anonymous" alt="Logo Right" />
   </div>
   
-  <!-- Таблица первой команды: логотип будет только в заголовке (между счетом и названием) -->
   <table>
     <colgroup>
       <col class="score">
@@ -346,13 +297,10 @@ dem0n
         <th>Rating</th>
       </tr>
     </thead>
-    <tbody id="team1Body">
-      <!-- Данные первой команды (исключительно ники + статы, без логотипов) -->
-    </tbody>
-   </table>
+    <tbody id="team1Body"></tbody>
+  </table>
 
-   <!-- Таблица второй команды -->
-   <table>
+  <table>
     <colgroup>
       <col class="score">
       <col class="team">
@@ -375,16 +323,14 @@ dem0n
         <th>Rating</th>
       </tr>
     </thead>
-    <tbody id="team2Body">
-      <!-- Данные второй команды, логотипов в никнеймах нет -->
-    </tbody>
-   </table>
+    <tbody id="team2Body"></tbody>
+  </table>
 
   <div id="mapName" class="map-name">INFERNO</div>
 </div>
 
 <script>
-  let teamsData = [];  // загруженные из таблицы команды {name, logo}
+  let teamsData = [];
 
   const mapOverlays = {
     INFERNO: 'https://i.postimg.cc/CLvSccpB/CSPORTS-NEWS.png',
@@ -395,6 +341,80 @@ dem0n
     OVERPASS: 'https://i.postimg.cc/rmzb8zMb/OVERPASS.png',
     MIRAGE: 'https://i.postimg.cc/x8HdbH4j/CSPORTS-NEWS.png'
   };
+
+  const example1 = `MOUZ	K	A	D	ADR	KAST	Swing	Rating
+3.0
+Hungary
+torzsi
+8	2	12	63.7	37.5%	-0.09%	0.83
+Israel
+xertioN
+9	3	14	66.4	43.8%	-2.80%	0.83
+Hungary
+xelex
+10	1	15	61.4	37.5%	-3.58%	0.75
+Lithuania
+jL
+6	3	13	42.5	50.0%	-3.63%	0.61
+Israel
+Spinx
+3	1	15	29.8	37.5%	-11.93%	0.22
+Spirit	K	A	D	ADR	KAST	Swing	Rating
+3.0
+Russia
+donk
+18	4	9	115.5	87.5%	+6.61%	1.90
+Ukraine
+zont1x
+17	6	8	111.6	93.8%	+5.54%	1.82
+Belarus
+tN1R
+13	3	6	78.2	93.8%	+6.44%	1.54
+Russia
+sh1ro
+9	7	5	54.2	87.5%	+3.90%	1.24
+Russia
+magixx
+12	7	9	82.9	87.5%	-0.45%	1.21`;
+
+  const example2 = `Natus Vincere	
+Op.
+K-D	MKs	KAST	1vsX	K (hs)	A (f)	D (t)	ADR	Swing	Rating
+3.0
+Ukraine
+b1t
+1 : 1	5	75.0%	1	14 (9)	5 (0)	15 (3)	71.7	+6.37%	1.28
+Finland
+Aleksib
+3 : 3	5	54.2%	0	14 (7)	5 (2)	15 (2)	74.1	-1.68%	1.03
+Romania
+iM
+1 : 2	3	66.7%	0	15 (6)	4 (0)	16 (4)	60.4	-1.19%	0.92
+Ukraine
+w0nderful
+3 : 5	3	70.8%	1	13 (4)	10 (4)	13 (0)	60.9	-3.33%	0.86
+Kosovo
+makazze
+1 : 4	4	70.8%	0	14 (4)	8 (1)	16 (5)	60.7	-3.40%	0.83
+Vitality	
+Op.
+K-D	MKs	KAST	1vsX	K (hs)	A (f)	D (t)	ADR	Swing	Rating
+3.0
+France
+ZywOo
+4 : 1	4	66.7%	0	19 (6)	3 (3)	13 (2)	68.2	+1.70%	1.28
+Israel
+flameZ
+5 : 4	5	70.8%	0	15 (12)	5 (1)	14 (3)	66.4	+4.21%	1.23
+Estonia
+ropz
+0 : 0	5	79.2%	0	18 (12)	4 (1)	11 (1)	72.6	+0.92%	1.23
+United Kingdom
+mezii
+1 : 2	4	75.0%	0	15 (4)	6 (0)	15 (2)	77.4	-1.24%	0.97
+France
+apEX
+5 : 2	0	70.8%	0	8 (6)	11 (1)	17 (3)	60.2	-2.37%	0.71`;
 
   function showStatus(message, type) {
     const statusDiv = document.getElementById('statusMessage');
@@ -409,7 +429,6 @@ dem0n
     }, 5000);
   }
 
-  // Функция создания строки игрока — БЕЗ логотипа команды (только ник + статы)
   function createPlayerRow(playerName, stats) {
     const row = document.createElement('tr');
     
@@ -420,36 +439,52 @@ dem0n
     const teamDiv = document.createElement('div');
     teamDiv.className = 'team-cell';
     
-    // ⚠️ НИКАКИХ логотипов у игроков! Даже если бы кто-то пытался добавить — не добавляем.
     const playerSpan = document.createElement('span');
     playerSpan.textContent = playerName || '';
     teamDiv.appendChild(playerSpan);
     nameCell.appendChild(teamDiv);
     row.appendChild(nameCell);
     
-    // Добавляем 6 столбцов: K, A, D, ADR, KAST, Rating
-    for (let i = 0; i < 6; i++) {
-      const cell = document.createElement('td');
-      if (stats && stats[i]) {
-        if (i === 5) { // последний столбец - рейтинг
-          const rating = parseFloat(stats[i]);
-          cell.textContent = isNaN(rating) ? stats[i] : rating.toFixed(2);
-          if (!isNaN(rating)) {
-            cell.classList.toggle('rating-high', rating >= 1);
-            cell.classList.toggle('rating-low', rating < 1);
-          }
-        } else {
-          cell.textContent = stats[i];
-        }
-      } else {
-        cell.textContent = '';
-      }
-      row.appendChild(cell);
+    // K, A, D, ADR, KAST, Rating
+    const k = stats.k || '0';
+    const a = stats.a || '0';
+    const d = stats.d || '0';
+    const adr = stats.adr || '';
+    const kast = stats.kast || '';
+    const rating = stats.rating || '';
+    
+    const kCell = document.createElement('td');
+    kCell.textContent = k;
+    row.appendChild(kCell);
+    
+    const aCell = document.createElement('td');
+    aCell.textContent = a;
+    row.appendChild(aCell);
+    
+    const dCell = document.createElement('td');
+    dCell.textContent = d;
+    row.appendChild(dCell);
+    
+    const adrCell = document.createElement('td');
+    adrCell.textContent = adr;
+    row.appendChild(adrCell);
+    
+    const kastCell = document.createElement('td');
+    kastCell.textContent = kast;
+    row.appendChild(kastCell);
+    
+    const ratingCell = document.createElement('td');
+    const ratingNum = parseFloat(rating);
+    ratingCell.textContent = isNaN(ratingNum) ? rating : ratingNum.toFixed(2);
+    if (!isNaN(ratingNum)) {
+      ratingCell.classList.toggle('rating-high', ratingNum >= 1);
+      ratingCell.classList.toggle('rating-low', ratingNum < 1);
     }
+    row.appendChild(ratingCell);
+    
     return row;
   }
 
-  // Обновление заголовка команды: счёт + логотип (только тут!) + название
   function updateTeamHeader(teamHeaderElement, teamName, teamLogo) {
     teamHeaderElement.innerHTML = '';
     teamHeaderElement.className = 'team-name';
@@ -457,16 +492,12 @@ dem0n
     const teamDiv = document.createElement('div');
     teamDiv.className = 'team-cell';
     
-    // Логотип команды добавляется ТОЛЬКО в заголовок — между счетом и названием
     if (teamLogo && teamLogo !== '') {
       const logoImg = document.createElement('img');
       logoImg.src = teamLogo;
       logoImg.className = 'team-logo-img';
       logoImg.alt = 'Логотип команды';
-      logoImg.onerror = function() { 
-        console.log('Не удалось загрузить логотип:', teamLogo);
-        this.style.display = 'none'; 
-      };
+      logoImg.onerror = function() { this.style.display = 'none'; };
       teamDiv.appendChild(logoImg);
     }
     
@@ -513,14 +544,13 @@ dem0n
       
       if (teams.length > 0) {
         teamsData = teams;
-        showStatus(`✅ Успешно загружено ${teams.length} команд(ы) из таблицы!\n\nКоманды: ${teams.map(t => t.name).join(', ')}`, 'success');
+        showStatus(`✅ Успешно загружено ${teams.length} команд(ы) из таблицы!`, 'success');
         updateStats();
       } else {
-        showStatus('⚠️ В таблице не найдено команд. Убедитесь, что данные начинаются со строки 2 в колонках A и B, и таблица опубликована как веб-страница.', 'error');
+        showStatus('⚠️ В таблице не найдено команд.', 'error');
       }
     } catch (error) {
-      console.error('Ошибка:', error);
-      showStatus('❌ Ошибка при загрузке: ' + error.message + '\n\nУбедитесь, что таблица опубликована:\nФайл → Поделиться → Опубликовать в интернете → Как веб-страницу', 'error');
+      showStatus('❌ Ошибка при загрузке: ' + error.message, 'error');
     } finally {
       loadButton.textContent = originalText;
       loadButton.disabled = false;
@@ -539,6 +569,172 @@ dem0n
     return team ? team.logo : '';
   }
 
+  function extractNumberFromParentheses(str) {
+    if (!str) return '0';
+    const match = str.match(/^(\d+)/);
+    return match ? match[1] : '0';
+  }
+
+  function parseData(rawText) {
+    const lines = rawText.split(/\r?\n/);
+    const result = {
+      team1Name: '',
+      team2Name: '',
+      team1Players: [],
+      team2Players: []
+    };
+    
+    let currentTeam = null;
+    let currentPlayers = [];
+    let i = 0;
+    
+    while (i < lines.length) {
+      let line = lines[i].trim();
+      if (line === '') { i++; continue; }
+      
+      // Определяем название команды (первые несколько строк)
+      if (currentTeam === null && !line.match(/\d/) && !line.includes('K-D') && !line.includes('K\tA') && !line.includes('Op.') && line.length > 1 && line !== '3.0') {
+        // Убираем дублирование
+        if (line.match(/^([A-Za-z\s]+)\1/)) {
+          line = line.replace(/([A-Za-z\s]+)\1/, '$1').trim();
+        }
+        result.team1Name = line;
+        currentTeam = 'team1';
+        i++;
+        continue;
+      }
+      
+      // Пропускаем Op.
+      if (line === 'Op.') { i++; continue; }
+      
+      // Определяем формат и парсим блок
+      if (line.includes('K-D') && line.includes('MKs')) {
+        // Формат 2: с K-D MKs KAST 1vsX K(hs) A(f) D(t) ADR Swing Rating
+        i++; // переходим после заголовков
+        
+        // Пропускаем строку с 3.0
+        if (i < lines.length && lines[i].trim() === '3.0') i++;
+        
+        const players = [];
+        for (let p = 0; p < 5 && i < lines.length; p++) {
+          // Пропускаем страну
+          const country = lines[i].trim();
+          if (country === 'Hungary' || country === 'Israel' || country === 'Lithuania' || 
+              country === 'Russia' || country === 'Ukraine' || country === 'Belarus' ||
+              country === 'France' || country === 'Finland' || country === 'Romania' ||
+              country === 'Kosovo' || country === 'Estonia' || country === 'United Kingdom') {
+            i++;
+          }
+          
+          if (i >= lines.length) break;
+          const playerName = lines[i].trim();
+          i++;
+          
+          if (i >= lines.length) break;
+          const statsLine = lines[i].trim();
+          i++;
+          
+          const parts = statsLine.split(/\t+/);
+          // Формат: K-D, MKs, KAST, 1vsX, K(hs), A(f), D(t), ADR, Swing, Rating
+          const khs = parts[4] || '0';
+          const af = parts[5] || '0';
+          const dt = parts[6] || '0';
+          const adr = parts[7] || '';
+          const kast = parts[2] || '';
+          const rating = parts[9] || '';
+          
+          players.push({
+            name: playerName,
+            stats: {
+              k: extractNumberFromParentheses(khs),
+              a: extractNumberFromParentheses(af),
+              d: extractNumberFromParentheses(dt),
+              adr: adr,
+              kast: kast,
+              rating: rating
+            }
+          });
+        }
+        
+        if (currentTeam === 'team1') {
+          result.team1Players = players;
+          currentTeam = 'team2';
+        } else if (currentTeam === 'team2') {
+          result.team2Players = players;
+          currentTeam = null;
+        }
+        continue;
+      }
+      
+      // Формат 1: K A D ADR KAST Swing Rating
+      if (line.includes('K\tA\tD\tADR\tKAST') || (line.match(/K\s+A\s+D\s+ADR\s+KAST/))) {
+        i++;
+        
+        // Пропускаем 3.0
+        if (i < lines.length && lines[i].trim() === '3.0') i++;
+        
+        const players = [];
+        for (let p = 0; p < 5 && i < lines.length; p++) {
+          // Пропускаем страну
+          const country = lines[i].trim();
+          if (country === 'Hungary' || country === 'Israel' || country === 'Lithuania' || 
+              country === 'Russia' || country === 'Ukraine' || country === 'Belarus' ||
+              country === 'France' || country === 'Finland' || country === 'Romania' ||
+              country === 'Kosovo' || country === 'Estonia' || country === 'United Kingdom') {
+            i++;
+          }
+          
+          if (i >= lines.length) break;
+          const playerName = lines[i].trim();
+          i++;
+          
+          if (i >= lines.length) break;
+          const statsLine = lines[i].trim();
+          i++;
+          
+          const parts = statsLine.split(/\t+/);
+          // Формат: K, A, D, ADR, KAST, Swing, Rating
+          players.push({
+            name: playerName,
+            stats: {
+              k: parts[0] || '0',
+              a: parts[1] || '0',
+              d: parts[2] || '0',
+              adr: parts[3] || '',
+              kast: parts[4] || '',
+              rating: parts[6] || (parts[5] || '')
+            }
+          });
+        }
+        
+        if (currentTeam === 'team1') {
+          result.team1Players = players;
+          currentTeam = 'team2';
+        } else if (currentTeam === 'team2') {
+          result.team2Players = players;
+          currentTeam = null;
+        }
+        continue;
+      }
+      
+      // Определяем вторую команду
+      if (currentTeam === 'team2' && !line.match(/\d/) && !line.includes('K-D') && !line.includes('K\tA') && line !== 'Op.' && line.length > 1 && line !== '3.0') {
+        if (line.match(/^([A-Za-z\s]+)\1/)) {
+          line = line.replace(/([A-Za-z\s]+)\1/, '$1').trim();
+        }
+        result.team2Name = line;
+      }
+      
+      i++;
+    }
+    
+    // Заполняем пустыми строками
+    while (result.team1Players.length < 5) result.team1Players.push({ name: '', stats: { k: '', a: '', d: '', adr: '', kast: '', rating: '' } });
+    while (result.team2Players.length < 5) result.team2Players.push({ name: '', stats: { k: '', a: '', d: '', adr: '', kast: '', rating: '' } });
+    
+    return result;
+  }
+
   function updateStats() {
     const tournamentName = document.getElementById('tournamentInput').value;
     const logoLeft = document.getElementById('logoLeftInput').value;
@@ -546,7 +742,12 @@ dem0n
     const score1 = document.getElementById('score1Input').value;
     const score2 = document.getElementById('score2Input').value;
     const map = document.getElementById('mapInput').value;
-    const data = document.getElementById('inputData').value;
+    const rawData = document.getElementById('inputData').value;
+
+    if (!rawData.trim()) {
+      showStatus('Введите данные команд', 'error');
+      return;
+    }
 
     document.getElementById('tournamentName').textContent = tournamentName;
     document.getElementById('logoLeft').src = logoLeft;
@@ -563,85 +764,12 @@ dem0n
       overlayDiv.style.display = 'none';
       overlayDiv.style.backgroundImage = '';
     }
-
-    const lines = data.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-    if (lines.length === 0) return;
     
-    let team1Lines = [];
-    let team2Lines = [];
-    let team1Name = '';
-    let team2Name = '';
+    const parsed = parseData(rawData);
     
-    const firstLine = lines[0];
-    const firstLineParts = firstLine.split(/\s+/);
-    team1Name = firstLineParts[0];
+    let team1Name = parsed.team1Name || 'Team 1';
+    let team2Name = parsed.team2Name || 'Team 2';
     
-    let secondTeamIndex = -1;
-    for (let i = 1; i < lines.length; i++) {
-      if (lines[i].includes('K') && lines[i].includes('A') && lines[i].includes('D')) {
-        const parts = lines[i].split(/\s+/);
-        if (isNaN(parseFloat(parts[0]))) {
-          secondTeamIndex = i;
-          team2Name = parts[0];
-          break;
-        }
-      }
-    }
-    
-    if (secondTeamIndex === -1) {
-      for (let i = 5; i < lines.length; i++) {
-        if (lines[i].toUpperCase().includes('FUT')) {
-          secondTeamIndex = i;
-          const parts = lines[i].split(/\s+/);
-          team2Name = parts[0];
-          break;
-        }
-      }
-    }
-    
-    if (secondTeamIndex > 0) {
-      let currentIdx = 1;
-      if (currentIdx < lines.length && !isNaN(parseFloat(lines[currentIdx])) && lines[currentIdx].split(/\s+/).length === 1) {
-        currentIdx++;
-      }
-      
-      for (let i = 0; i < 5; i++) {
-        if (currentIdx < lines.length) {
-          const playerName = lines[currentIdx++];
-          if (currentIdx < lines.length) {
-            const statsRaw = lines[currentIdx++];
-            const stats = statsRaw.split(/\s+/);
-            team1Lines.push({ name: playerName, stats: stats });
-          } else {
-            team1Lines.push({ name: '', stats: [] });
-          }
-        } else {
-          team1Lines.push({ name: '', stats: [] });
-        }
-      }
-      
-      currentIdx = secondTeamIndex + 1;
-      if (currentIdx < lines.length && !isNaN(parseFloat(lines[currentIdx])) && lines[currentIdx].split(/\s+/).length === 1) {
-        currentIdx++;
-      }
-      
-      for (let i = 0; i < 5; i++) {
-        if (currentIdx < lines.length) {
-          const playerName = lines[currentIdx++];
-          if (currentIdx < lines.length) {
-            const statsRaw = lines[currentIdx++];
-            const stats = statsRaw.split(/\s+/);
-            team2Lines.push({ name: playerName, stats: stats });
-          } else {
-            team2Lines.push({ name: '', stats: [] });
-          }
-        } else {
-          team2Lines.push({ name: '', stats: [] });
-        }
-      }
-    }
-    
-    // Получаем логотипы команд для заголовков (они будут только в шапках таблиц)
     const team1Logo = getTeamLogo(team1Name);
     const team2Logo = getTeamLogo(team2Name);
     
@@ -651,32 +779,34 @@ dem0n
     const team1Body = document.getElementById('team1Body');
     team1Body.innerHTML = '';
     for (let i = 0; i < 5; i++) {
-      if (i < team1Lines.length) {
-        const player = team1Lines[i];
-        const row = createPlayerRow(player.name, player.stats);
-        team1Body.appendChild(row);
-      } else {
-        const row = createPlayerRow('', []);
-        team1Body.appendChild(row);
-      }
+      const player = parsed.team1Players[i];
+      const row = createPlayerRow(player.name, player.stats);
+      team1Body.appendChild(row);
     }
     
     const team2Body = document.getElementById('team2Body');
     team2Body.innerHTML = '';
     for (let i = 0; i < 5; i++) {
-      if (i < team2Lines.length) {
-        const player = team2Lines[i];
-        const row = createPlayerRow(player.name, player.stats);
-        team2Body.appendChild(row);
-      } else {
-        const row = createPlayerRow('', []);
-        team2Body.appendChild(row);
-      }
+      const player = parsed.team2Players[i];
+      const row = createPlayerRow(player.name, player.stats);
+      team2Body.appendChild(row);
     }
+    
+    showStatus(`✅ Данные загружены: ${team1Name} vs ${team2Name}`, 'success');
   }
 
   document.getElementById('updateBtn').addEventListener('click', updateStats);
   document.getElementById('loadFromSheetBtn').addEventListener('click', loadTeamsFromSheet);
+  
+  document.getElementById('loadExample1').addEventListener('click', () => {
+    document.getElementById('inputData').value = example1;
+    updateStats();
+  });
+  
+  document.getElementById('loadExample2').addEventListener('click', () => {
+    document.getElementById('inputData').value = example2;
+    updateStats();
+  });
   
   document.getElementById('downloadBtn').addEventListener('click', () => {
     const btn = document.getElementById('downloadBtn');
@@ -693,7 +823,6 @@ dem0n
       link.click();
       btn.textContent = 'Скачать как изображение';
     }).catch((err) => {
-      console.warn(err);
       btn.textContent = 'Скачать как изображение';
       showStatus('Ошибка при создании изображения', 'error');
     });
@@ -715,11 +844,12 @@ dem0n
     }
   });
 
-  // Автозагрузка команд при старте
   setTimeout(() => {
     loadTeamsFromSheet();
   }, 300);
   
+  // Загружаем пример по умолчанию
+  document.getElementById('inputData').value = example1;
   updateStats();
 </script>
 
