@@ -584,169 +584,86 @@ function extractNumberFromParentheses(str) {
 }
 
 function parseData(rawText) {
-  const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l);
-  const teamsData = [];
+  // 1. Ultimate Text Cleanup
+  // Flattens the entire paste into a single normalized space-separated string
+  const text = rawText
+    .replace(/\u00A0/g, ' ')       // Remove non-breaking spaces
+    .replace(/\(.*?\)/g, ' ')      // Remove bracketed sub-stats e.g., (23), (hs)
+    .replace(/[%]/g, ' ')          // Remove percentage signs
+    .replace(/:/g, ' ')            // Replace colons in K:D with spaces
+    .replace(/[\r\n\t]+/g, ' ')    // Collapse all vertical/tab spacing
+    .replace(/\s{2,}/g, ' ')       // Collapse multiple spaces
+    .trim();
 
-  const parseVal = v => {
-    const str = String(v).replace(/[%*+]/g, '').trim();
-    const num = parseFloat(str);
-    return isNaN(num) ? 0.0 : num;
-  };
+  // 2. Token Stream Regex (Signature Matching)
+  // Format 2: Name K_Op D_Op MKs KAST 1vsX K A D ADR [Swing] Rating
+  const fmt2 = /(?<name>[A-Za-z0-9_.-]{1,20})\s+\d+\s+\d+\s+\d+\s+(?<kast>\d+(?:\.\d+)?)\s+\d+\s+(?<k>\d+)\s+(?<a>\d+)\s+(?<d>\d+)\s+(?<adr>\d+(?:\.\d+)?)(?:\s+[-+]?\d+(?:\.\d+)?)?\s+(?<rating>\d+(?:\.\d+)?)/g;
+  
+  // Format 1: Name K A D ADR KAST [Swing] Rating
+  const fmt1 = /(?<name>[A-Za-z0-9_.-]{1,20})\s+(?<k>\d+)\s+(?<a>\d+)\s+(?<d>\d+)\s+(?<adr>\d+(?:\.\d+)?)\s+(?<kast>\d+(?:\.\d+)?)(?:\s+[-+]?\d+(?:\.\d+)?)?\s+(?<rating>\d+(?:\.\d+)?)/g;
 
-  let i = 0;
-  while (i < lines.length) {
-    if (lines[i] === "Op.K-D" && i > 0 && lines[i - 1] !== "" && !["Op.K-D", "KAST", "ADR"].some(x => lines[i - 1].includes(x))) {
-      const team_name = lines[i - 1];
-      
-      while (i < lines.length && !lines[i].startsWith("Rating")) i++;
-      i++;
+  let players = [];
+  let match;
 
-      const players = [];
-      for (let p = 0; p < 5; p++) {
-        if (i >= lines.length) break;
-        let name = lines[i];
-
-        if (i + 1 < lines.length && !lines[i + 1].includes(":") && i + 2 < lines.length && lines[i + 2].includes(":")) {
-          name = lines[i + 1];
-          i++;
-        }
-
-        let kast = 0, kills = 0, assists = 0, deaths = 0, adr = 0, rating = 0;
-        try {
-          kast = Number(parseVal(lines[i + 3]).toFixed(1));
-          kills = parseInt(parseVal(lines[i + 5].split(/\s+/)[0]));
-          assists = parseInt(parseVal(lines[i + 6].split(/\s+/)[0]));
-          deaths = parseInt(parseVal(lines[i + 7].split(/\s+/)[0]));
-          adr = Number(parseVal(lines[i + 8]).toFixed(1));
-          rating = Number(parseVal(lines[i + 10]).toFixed(2));
-        } catch (e) {}
-
-        players.push({ player_name: name, kills, assists, deaths, ADR: adr, KAST: kast, rating });
-        i += 11;
-      }
-      teamsData.push({ team_name, players });
-      continue;
-    }
-
-    else if (lines[i] === "K" && i + 6 < lines.length && lines[i + 1] === "A" && lines[i + 2] === "D" && lines[i + 3] === "ADR") {
-      const team_name = lines[i - 1];
-      i += 7;
-
-      const players = [];
-      for (let p = 0; p < 5; p++) {
-        if (i + 7 >= lines.length) break;
-        const name = lines[i];
-        
-        let k = 0, a = 0, d = 0, adr = 0, kast = 0, rating = 0;
-        try {
-          k = parseInt(parseVal(lines[i + 1]));
-          a = parseInt(parseVal(lines[i + 2]));
-          d = parseInt(parseVal(lines[i + 3]));
-          adr = Number(parseVal(lines[i + 4]).toFixed(1));
-          kast = Number(parseVal(lines[i + 5]).toFixed(1));
-          rating = Number(parseVal(lines[i + 7]).toFixed(2));
-        } catch (e) {}
-
-        players.push({ player_name: name, kills: k, assists: a, deaths: d, ADR: adr, KAST: kast, rating });
-        i += 8;
-      }
-      teamsData.push({ team_name, players });
-      continue;
-    }
-
-    else if (lines[i].includes("Rating") && (lines[i].includes("Op.K-D") || /\bK\b.*\bA\b.*\bD\b/.test(lines[i]))) {
-      const header_line = lines[i];
-      let team_name = "";
-      let fmt = "";
-
-      if (header_line.includes("Op.K-D")) {
-        team_name = header_line.split("Op.K-D")[0].trim();
-        fmt = "desktop";
-      } else {
-        team_name = header_line.split(/\s+K\s+/)[0].trim();
-        fmt = "mobile";
-      }
-
-      const half = Math.floor(team_name.length / 2);
-      if (half > 0 && team_name.substring(0, half) === team_name.substring(half)) {
-        team_name = team_name.substring(0, half);
-      }
-
-      const players = [];
-      i++;
-
-      while (players.length < 5 && i < lines.length) {
-        const buffer = [];
-        let stats_line = "";
-
-        while (i < lines.length) {
-          const first_char = lines[i].replace(/[\s\-\:+]/g, "");
-          if (first_char && !isNaN(parseInt(first_char[0]))) {
-            stats_line = lines[i];
-            i++;
-            break;
-          } else {
-            buffer.push(lines[i]);
-            i++;
-          }
-        }
-
-        if (!stats_line) break;
-
-        const player_name = buffer.length > 0 ? buffer[buffer.length - 1] : "Unknown";
-        const clean_line = stats_line.replace(/\(.*?\)/g, "").replace(/:/g, " ");
-        const tokens = clean_line.trim().split(/\s+/);
-
-        let k = 0, a = 0, d = 0, adr = 0, kast = 0, rating = 0;
-
-        if (fmt === "desktop" && tokens.length >= 11) {
-          kast = Number(parseVal(tokens[3]).toFixed(1));
-          k = parseInt(parseVal(tokens[5]));
-          a = parseInt(parseVal(tokens[6]));
-          d = parseInt(parseVal(tokens[7]));
-          adr = Number(parseVal(tokens[8]).toFixed(1));
-          rating = Number(parseVal(tokens[10]).toFixed(2));
-        } else if (fmt === "mobile" && tokens.length >= 7) {
-          k = parseInt(parseVal(tokens[0]));
-          a = parseInt(parseVal(tokens[1]));
-          d = parseInt(parseVal(tokens[2]));
-          adr = Number(parseVal(tokens[3]).toFixed(1));
-          kast = Number(parseVal(tokens[4]).toFixed(1));
-          rating = Number(parseVal(tokens[6]).toFixed(2));
-        }
-
-        players.push({ player_name, kills: k, assists: a, deaths: d, ADR: adr, KAST: kast, rating });
-      }
-      teamsData.push({ team_name, players });
-      continue;
-    }
-    i++;
+  // Hunt for the long-format stats first
+  while ((match = fmt2.exec(text)) !== null) {
+    players.push({ ...match.groups, index: match.index, end: match.index + match[0].length });
   }
 
-  const result = {
-    team1Name: teamsData[0] ? teamsData[0].team_name : '',
-    team2Name: teamsData[1] ? teamsData[1].team_name : '',
-    team1Players: [],
-    team2Players: []
+  // Fallback to the short-format stats if nothing found
+  if (players.length === 0) {
+    while ((match = fmt1.exec(text)) !== null) {
+      players.push({ ...match.groups, index: match.index, end: match.index + match[0].length });
+    }
+  }
+
+  // 3. Extract Teams dynamically based on player positions
+  let team1Name = "Team 1", team2Name = "Team 2";
+  
+  const cleanTeam = (str) => {
+    let name = str.trim();
+    // Fix HLTV's copy bug where names duplicate (e.g., "AuroraAurora" -> "Aurora")
+    const half = Math.floor(name.length / 2);
+    if (half > 0 && name.substring(0, half) === name.substring(half)) {
+      name = name.substring(0, half);
+    }
+    return name || "Team";
   };
 
-  const mapPlayer = p => ({
-    name: p.player_name,
+  if (players.length > 0) {
+    // Team 1 is the text residing before the 1st player's stats start
+    const beforeFirst = text.substring(0, players[0].index);
+    team1Name = cleanTeam(beforeFirst.split(/Op\.|K-D|\bK\b\s+\bA\b\s+\bD\b/)[0]);
+  }
+
+  if (players.length >= 6) {
+    // Team 2 is the text residing between the 5th player's stats and the 6th player's name
+    const betweenTeams = text.substring(players[4].end, players[5].index);
+    team2Name = cleanTeam(betweenTeams.split(/Op\.|K-D|\bK\b\s+\bA\b\s+\bD\b/)[0]);
+  }
+
+  // 4. Build Result
+  const result = { team1Name, team2Name, team1Players: [], team2Players: [] };
+
+  const formatPlayer = (p) => ({
+    name: p.name,
     stats: {
-      k: p.kills,
-      a: p.assists,
-      d: p.deaths,
-      adr: p.ADR,
-      kast: p.KAST,
-      rating: p.rating
+      k: parseInt(p.k),
+      a: parseInt(p.a),
+      d: parseInt(p.d),
+      adr: parseFloat(p.adr).toFixed(1),
+      kast: parseFloat(p.kast).toFixed(1) + '%',
+      rating: parseFloat(p.rating).toFixed(2)
     }
   });
 
-  if (teamsData[0]) result.team1Players = teamsData[0].players.map(mapPlayer);
-  if (teamsData[1]) result.team2Players = teamsData[1].players.map(mapPlayer);
+  result.team1Players = players.slice(0, 5).map(formatPlayer);
+  result.team2Players = players.slice(5, 10).map(formatPlayer);
 
-  while (result.team1Players.length < 5) result.team1Players.push({ name: '', stats: { k: '', a: '', d: '', adr: '', kast: '', rating: '' } });
-  while (result.team2Players.length < 5) result.team2Players.push({ name: '', stats: { k: '', a: '', d: '', adr: '', kast: '', rating: '' } });
+  // Pad missing players if the parse was incomplete
+  const empty = () => ({ name: '', stats: { k: '0', a: '0', d: '0', adr: '', kast: '', rating: '' } });
+  while (result.team1Players.length < 5) result.team1Players.push(empty());
+  while (result.team2Players.length < 5) result.team2Players.push(empty());
 
   return result;
 }
@@ -891,3 +808,4 @@ updateStats();
 
 </body>
 </html>
+
