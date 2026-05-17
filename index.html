@@ -228,7 +228,8 @@
     }
   </style>
 
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">
+</script>
 </head>
 
 <body>
@@ -330,19 +331,19 @@
 </div>
 
 <script>
-  let teamsData = [];
+let teamsData = [];
 
-  const mapOverlays = {
-    INFERNO: 'https://i.postimg.cc/CLvSccpB/CSPORTS-NEWS.png',
-    DUST_2: 'https://i.postimg.cc/L6ZB4b4L/CSPORTS-NEWS.png',
-    TRAIN: 'https://i.postimg.cc/CxsvYQJJ/CSPORTS-NEWS.png',
-    NUKE: 'https://i.postimg.cc/xC3jPYPM/CSPORTS-NEWS.png',
-    ANCIENT: 'https://i.postimg.cc/rshrQ591/CSPORTS-NEWS.png',
-    OVERPASS: 'https://i.postimg.cc/rmzb8zMb/OVERPASS.png',
-    MIRAGE: 'https://i.postimg.cc/x8HdbH4j/CSPORTS-NEWS.png'
-  };
+const mapOverlays = {
+    INFERNO: "https://i.postimg.cc/CLvSccpB/CSPORTS-NEWS.png",
+    DUST_2: "https://i.postimg.cc/L6ZB4b4L/CSPORTS-NEWS.png",
+    TRAIN: "https://i.postimg.cc/CxsvYQJJ/CSPORTS-NEWS.png",
+    NUKE: "https://i.postimg.cc/xC3jPYPM/CSPORTS-NEWS.png",
+    ANCIENT: "https://i.postimg.cc/rshrQ591/CSPORTS-NEWS.png",
+    OVERPASS: "https://i.postimg.cc/rmzb8zMb/OVERPASS.png",
+    MIRAGE: "https://i.postimg.cc/x8HdbH4j/CSPORTS-NEWS.png",
+};
 
-  const example1 = `MOUZ	K	A	D	ADR	KAST	Swing	Rating
+const example1 = `MOUZ	K	A	D	ADR	KAST	Swing	Rating
 3.0
 Hungary
 torzsi
@@ -377,7 +378,7 @@ Russia
 magixx
 12	7	9	82.9	87.5%	-0.45%	1.21`;
 
-  const example2 = `Natus Vincere	
+const example2 = `Natus Vincere	
 Op.
 K-D	MKs	KAST	1vsX	K (hs)	A (f)	D (t)	ADR	Swing	Rating
 3.0
@@ -416,442 +417,479 @@ France
 apEX
 5 : 2	0	70.8%	0	8 (6)	11 (1)	17 (3)	60.2	-2.37%	0.71`;
 
-  function showStatus(message, type) {
-    const statusDiv = document.getElementById('statusMessage');
+function showStatus(message, type) {
+    const statusDiv = document.getElementById("statusMessage");
     statusDiv.textContent = message;
-    statusDiv.className = 'status ' + type;
-    statusDiv.style.display = 'block';
+    statusDiv.className = "status " + type;
+    statusDiv.style.display = "block";
     setTimeout(() => {
-      if (statusDiv.className === 'status ' + type) {
-        statusDiv.style.display = 'none';
-        statusDiv.className = 'status';
-      }
+        if (statusDiv.className === "status " + type) {
+            statusDiv.style.display = "none";
+            statusDiv.className = "status";
+        }
     }, 5000);
-  }
+}
 
-  function createPlayerRow(playerName, stats) {
-    const row = document.createElement('tr');
-    
-    const nameCell = document.createElement('td');
+function createPlayerRow(playerName, stats) {
+    const row = document.createElement("tr");
+
+    const nameCell = document.createElement("td");
     nameCell.colSpan = 2;
-    nameCell.className = 'team-name';
-    
-    const teamDiv = document.createElement('div');
-    teamDiv.className = 'team-cell';
-    
-    const playerSpan = document.createElement('span');
-    playerSpan.textContent = playerName || '';
+    nameCell.className = "team-name";
+
+    const teamDiv = document.createElement("div");
+    teamDiv.className = "team-cell";
+
+    const playerSpan = document.createElement("span");
+    playerSpan.textContent = playerName || "";
     teamDiv.appendChild(playerSpan);
     nameCell.appendChild(teamDiv);
     row.appendChild(nameCell);
-    
+
     // K, A, D, ADR, KAST, Rating
-    const k = stats.k || '0';
-    const a = stats.a || '0';
-    const d = stats.d || '0';
-    const adr = stats.adr || '';
-    const kast = stats.kast || '';
-    const rating = stats.rating || '';
-    
-    const kCell = document.createElement('td');
+    const k = stats.k || "0";
+    const a = stats.a || "0";
+    const d = stats.d || "0";
+    const adr = stats.adr || "";
+    const kast = stats.kast || "";
+    const rating = stats.rating || "";
+
+    const kCell = document.createElement("td");
     kCell.textContent = k;
     row.appendChild(kCell);
-    
-    const aCell = document.createElement('td');
+
+    const aCell = document.createElement("td");
     aCell.textContent = a;
     row.appendChild(aCell);
-    
-    const dCell = document.createElement('td');
+
+    const dCell = document.createElement("td");
     dCell.textContent = d;
     row.appendChild(dCell);
-    
-    const adrCell = document.createElement('td');
+
+    const adrCell = document.createElement("td");
     adrCell.textContent = adr;
     row.appendChild(adrCell);
-    
-    const kastCell = document.createElement('td');
+
+    const kastCell = document.createElement("td");
     kastCell.textContent = kast;
     row.appendChild(kastCell);
-    
-    const ratingCell = document.createElement('td');
+
+    const ratingCell = document.createElement("td");
     const ratingNum = parseFloat(rating);
     ratingCell.textContent = isNaN(ratingNum) ? rating : ratingNum.toFixed(2);
     if (!isNaN(ratingNum)) {
-      ratingCell.classList.toggle('rating-high', ratingNum >= 1);
-      ratingCell.classList.toggle('rating-low', ratingNum < 1);
+        ratingCell.classList.toggle("rating-high", ratingNum >= 1);
+        ratingCell.classList.toggle("rating-low", ratingNum < 1);
     }
     row.appendChild(ratingCell);
-    
+
     return row;
-  }
+}
 
-  function updateTeamHeader(teamHeaderElement, teamName, teamLogo) {
-    teamHeaderElement.innerHTML = '';
-    teamHeaderElement.className = 'team-name';
-    
-    const teamDiv = document.createElement('div');
-    teamDiv.className = 'team-cell';
-    
-    if (teamLogo && teamLogo !== '') {
-      const logoImg = document.createElement('img');
-      logoImg.src = teamLogo;
-      logoImg.className = 'team-logo-img';
-      logoImg.alt = 'Логотип команды';
-      logoImg.onerror = function() { this.style.display = 'none'; };
-      teamDiv.appendChild(logoImg);
+function updateTeamHeader(teamHeaderElement, teamName, teamLogo) {
+    teamHeaderElement.innerHTML = "";
+    teamHeaderElement.className = "team-name";
+
+    const teamDiv = document.createElement("div");
+    teamDiv.className = "team-cell";
+
+    if (teamLogo && teamLogo !== "") {
+        const logoImg = document.createElement("img");
+        logoImg.src = teamLogo;
+        logoImg.className = "team-logo-img";
+        logoImg.alt = "Логотип команды";
+        logoImg.onerror = function () {
+            this.style.display = "none";
+        };
+        teamDiv.appendChild(logoImg);
     }
-    
-    const nameSpan = document.createElement('span');
-    nameSpan.textContent = teamName || '';
+
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = teamName || "";
     teamDiv.appendChild(nameSpan);
-    
+
     teamHeaderElement.appendChild(teamDiv);
-  }
+}
 
-  async function loadTeamsFromSheet() {
-    const loadButton = document.getElementById('loadFromSheetBtn');
+async function loadTeamsFromSheet() {
+    const loadButton = document.getElementById("loadFromSheetBtn");
     const originalText = loadButton.textContent;
-    loadButton.textContent = '⏳ Загрузка...';
+    loadButton.textContent = "⏳ Загрузка...";
     loadButton.disabled = true;
-    
-    showStatus('Загрузка данных из Google таблицы...', 'info');
-    
+
+    showStatus("Загрузка данных из Google таблицы...", "info");
+
     try {
-      const SHEET_ID = '1PkOPifvbFmaTv5yCPEbILrFxLNPpplfjeVhnDUrwXVw';
-      const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq=SELECT%20A%2C%20B`;
-      
-      const response = await fetch(API_URL);
-      const text = await response.text();
-      const jsonStart = text.indexOf('(');
-      const jsonEnd = text.lastIndexOf(')');
-      const jsonData = text.substring(jsonStart + 1, jsonEnd);
-      const data = JSON.parse(jsonData);
-      
-      const teams = [];
-      if (data.table && data.table.rows) {
-        for (let i = 0; i < data.table.rows.length; i++) {
-          const row = data.table.rows[i];
-          const teamName = row.c[0] ? row.c[0].v : null;
-          const logoUrl = row.c[1] ? row.c[1].v : null;
-          if (teamName && teamName.toString().trim() !== '') {
-            teams.push({
-              name: teamName.toString().trim(),
-              logo: logoUrl ? logoUrl.toString().trim() : ''
-            });
-          }
+        const SHEET_ID = "1PkOPifvbFmaTv5yCPEbILrFxLNPpplfjeVhnDUrwXVw";
+        const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&tq=SELECT%20A%2C%20B`;
+
+        const response = await fetch(API_URL);
+        const text = await response.text();
+        const jsonStart = text.indexOf("(");
+        const jsonEnd = text.lastIndexOf(")");
+        const jsonData = text.substring(jsonStart + 1, jsonEnd);
+        const data = JSON.parse(jsonData);
+
+        const teams = [];
+        if (data.table && data.table.rows) {
+            for (let i = 0; i < data.table.rows.length; i++) {
+                const row = data.table.rows[i];
+                const teamName = row.c[0] ? row.c[0].v : null;
+                const logoUrl = row.c[1] ? row.c[1].v : null;
+                if (teamName && teamName.toString().trim() !== "") {
+                    teams.push({
+                        name: teamName.toString().trim(),
+                        logo: logoUrl ? logoUrl.toString().trim() : "",
+                    });
+                }
+            }
         }
-      }
-      
-      if (teams.length > 0) {
-        teamsData = teams;
-        showStatus(`✅ Успешно загружено ${teams.length} команд(ы) из таблицы!`, 'success');
-        updateStats();
-      } else {
-        showStatus('⚠️ В таблице не найдено команд.', 'error');
-      }
+
+        if (teams.length > 0) {
+            teamsData = teams;
+            showStatus(
+                `✅ Успешно загружено ${teams.length} команд(ы) из таблицы!`,
+                "success",
+            );
+            updateStats();
+        } else {
+            showStatus("⚠️ В таблице не найдено команд.", "error");
+        }
     } catch (error) {
-      showStatus('❌ Ошибка при загрузке: ' + error.message, 'error');
+        showStatus("❌ Ошибка при загрузке: " + error.message, "error");
     } finally {
-      loadButton.textContent = originalText;
-      loadButton.disabled = false;
+        loadButton.textContent = originalText;
+        loadButton.disabled = false;
     }
-  }
+}
 
-  function getTeamLogo(teamName) {
-    if (!teamName || !teamsData.length) return '';
-    let team = teamsData.find(t => t.name.toLowerCase() === teamName.toLowerCase());
+function getTeamLogo(teamName) {
+    if (!teamName || !teamsData.length) return "";
+    let team = teamsData.find(
+        (t) => t.name.toLowerCase() === teamName.toLowerCase(),
+    );
     if (!team) {
-      team = teamsData.find(t => 
-        teamName.toLowerCase().includes(t.name.toLowerCase()) ||
-        t.name.toLowerCase().includes(teamName.toLowerCase())
-      );
+        team = teamsData.find(
+            (t) =>
+                teamName.toLowerCase().includes(t.name.toLowerCase()) ||
+                t.name.toLowerCase().includes(teamName.toLowerCase()),
+        );
     }
-    return team ? team.logo : '';
-  }
+    return team ? team.logo : "";
+}
 
-  function extractNumberFromParentheses(str) {
-    if (!str) return '0';
+function extractNumberFromParentheses(str) {
+    if (!str) return "0";
     const match = str.match(/^(\d+)/);
-    return match ? match[1] : '0';
-  }
+    return match ? match[1] : "0";
+}
 
-  function parseData(rawText) {
-    const lines = rawText.split(/\r?\n/);
-    const result = {
-      team1Name: '',
-      team2Name: '',
-      team1Players: [],
-      team2Players: []
-    };
-    
-    let currentTeam = null;
-    let currentPlayers = [];
-    let i = 0;
-    
-    while (i < lines.length) {
-      let line = lines[i].trim();
-      if (line === '') { i++; continue; }
+function parseData(rawText) {
+  const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+  const teamsData = [];
+
+  const parseVal = v => {
+    const str = String(v).replace(/[%*+]/g, '').trim();
+    const num = parseFloat(str);
+    return isNaN(num) ? 0.0 : num;
+  };
+
+  let i = 0;
+  while (i < lines.length) {
+    if (lines[i] === "Op.K-D" && i > 0 && lines[i - 1] !== "" && !["Op.K-D", "KAST", "ADR"].some(x => lines[i - 1].includes(x))) {
+      const team_name = lines[i - 1];
       
-      // Определяем название команды (первые несколько строк)
-      if (currentTeam === null && !line.match(/\d/) && !line.includes('K-D') && !line.includes('K\tA') && !line.includes('Op.') && line.length > 1 && line !== '3.0') {
-        // Убираем дублирование
-        if (line.match(/^([A-Za-z\s]+)\1/)) {
-          line = line.replace(/([A-Za-z\s]+)\1/, '$1').trim();
-        }
-        result.team1Name = line;
-        currentTeam = 'team1';
-        i++;
-        continue;
-      }
-      
-      // Пропускаем Op.
-      if (line === 'Op.') { i++; continue; }
-      
-      // Определяем формат и парсим блок
-      if (line.includes('K-D') && line.includes('MKs')) {
-        // Формат 2: с K-D MKs KAST 1vsX K(hs) A(f) D(t) ADR Swing Rating
-        i++; // переходим после заголовков
-        
-        // Пропускаем строку с 3.0
-        if (i < lines.length && lines[i].trim() === '3.0') i++;
-        
-        const players = [];
-        for (let p = 0; p < 5 && i < lines.length; p++) {
-          // Пропускаем страну
-          const country = lines[i].trim();
-          if (country === 'Hungary' || country === 'Israel' || country === 'Lithuania' || 
-              country === 'Russia' || country === 'Ukraine' || country === 'Belarus' ||
-              country === 'France' || country === 'Finland' || country === 'Romania' ||
-              country === 'Kosovo' || country === 'Estonia' || country === 'United Kingdom') {
-            i++;
-          }
-          
-          if (i >= lines.length) break;
-          const playerName = lines[i].trim();
-          i++;
-          
-          if (i >= lines.length) break;
-          const statsLine = lines[i].trim();
-          i++;
-          
-          const parts = statsLine.split(/\t+/);
-          // Формат: K-D, MKs, KAST, 1vsX, K(hs), A(f), D(t), ADR, Swing, Rating
-          const khs = parts[4] || '0';
-          const af = parts[5] || '0';
-          const dt = parts[6] || '0';
-          const adr = parts[7] || '';
-          const kast = parts[2] || '';
-          const rating = parts[9] || '';
-          
-          players.push({
-            name: playerName,
-            stats: {
-              k: extractNumberFromParentheses(khs),
-              a: extractNumberFromParentheses(af),
-              d: extractNumberFromParentheses(dt),
-              adr: adr,
-              kast: kast,
-              rating: rating
-            }
-          });
-        }
-        
-        if (currentTeam === 'team1') {
-          result.team1Players = players;
-          currentTeam = 'team2';
-        } else if (currentTeam === 'team2') {
-          result.team2Players = players;
-          currentTeam = null;
-        }
-        continue;
-      }
-      
-      // Формат 1: K A D ADR KAST Swing Rating
-      if (line.includes('K\tA\tD\tADR\tKAST') || (line.match(/K\s+A\s+D\s+ADR\s+KAST/))) {
-        i++;
-        
-        // Пропускаем 3.0
-        if (i < lines.length && lines[i].trim() === '3.0') i++;
-        
-        const players = [];
-        for (let p = 0; p < 5 && i < lines.length; p++) {
-          // Пропускаем страну
-          const country = lines[i].trim();
-          if (country === 'Hungary' || country === 'Israel' || country === 'Lithuania' || 
-              country === 'Russia' || country === 'Ukraine' || country === 'Belarus' ||
-              country === 'France' || country === 'Finland' || country === 'Romania' ||
-              country === 'Kosovo' || country === 'Estonia' || country === 'United Kingdom') {
-            i++;
-          }
-          
-          if (i >= lines.length) break;
-          const playerName = lines[i].trim();
-          i++;
-          
-          if (i >= lines.length) break;
-          const statsLine = lines[i].trim();
-          i++;
-          
-          const parts = statsLine.split(/\t+/);
-          // Формат: K, A, D, ADR, KAST, Swing, Rating
-          players.push({
-            name: playerName,
-            stats: {
-              k: parts[0] || '0',
-              a: parts[1] || '0',
-              d: parts[2] || '0',
-              adr: parts[3] || '',
-              kast: parts[4] || '',
-              rating: parts[6] || (parts[5] || '')
-            }
-          });
-        }
-        
-        if (currentTeam === 'team1') {
-          result.team1Players = players;
-          currentTeam = 'team2';
-        } else if (currentTeam === 'team2') {
-          result.team2Players = players;
-          currentTeam = null;
-        }
-        continue;
-      }
-      
-      // Определяем вторую команду
-      if (currentTeam === 'team2' && !line.match(/\d/) && !line.includes('K-D') && !line.includes('K\tA') && line !== 'Op.' && line.length > 1 && line !== '3.0') {
-        if (line.match(/^([A-Za-z\s]+)\1/)) {
-          line = line.replace(/([A-Za-z\s]+)\1/, '$1').trim();
-        }
-        result.team2Name = line;
-      }
-      
+      while (i < lines.length && !lines[i].startsWith("Rating")) i++;
       i++;
+
+      const players = [];
+      for (let p = 0; p < 5; p++) {
+        if (i >= lines.length) break;
+        let name = lines[i];
+
+        if (i + 1 < lines.length && !lines[i + 1].includes(":") && i + 2 < lines.length && lines[i + 2].includes(":")) {
+          name = lines[i + 1];
+          i++;
+        }
+
+        let kast = 0, kills = 0, assists = 0, deaths = 0, adr = 0, rating = 0;
+        try {
+          kast = Number(parseVal(lines[i + 3]).toFixed(1));
+          kills = parseInt(parseVal(lines[i + 5].split(/\s+/)[0]));
+          assists = parseInt(parseVal(lines[i + 6].split(/\s+/)[0]));
+          deaths = parseInt(parseVal(lines[i + 7].split(/\s+/)[0]));
+          adr = Number(parseVal(lines[i + 8]).toFixed(1));
+          rating = Number(parseVal(lines[i + 10]).toFixed(2));
+        } catch (e) {}
+
+        players.push({ player_name: name, kills, assists, deaths, ADR: adr, KAST: kast, rating });
+        i += 11;
+      }
+      teamsData.push({ team_name, players });
+      continue;
     }
-    
-    // Заполняем пустыми строками
-    while (result.team1Players.length < 5) result.team1Players.push({ name: '', stats: { k: '', a: '', d: '', adr: '', kast: '', rating: '' } });
-    while (result.team2Players.length < 5) result.team2Players.push({ name: '', stats: { k: '', a: '', d: '', adr: '', kast: '', rating: '' } });
-    
-    return result;
+
+    else if (lines[i] === "K" && i + 6 < lines.length && lines[i + 1] === "A" && lines[i + 2] === "D" && lines[i + 3] === "ADR") {
+      const team_name = lines[i - 1];
+      i += 7;
+
+      const players = [];
+      for (let p = 0; p < 5; p++) {
+        if (i + 7 >= lines.length) break;
+        const name = lines[i];
+        
+        let k = 0, a = 0, d = 0, adr = 0, kast = 0, rating = 0;
+        try {
+          k = parseInt(parseVal(lines[i + 1]));
+          a = parseInt(parseVal(lines[i + 2]));
+          d = parseInt(parseVal(lines[i + 3]));
+          adr = Number(parseVal(lines[i + 4]).toFixed(1));
+          kast = Number(parseVal(lines[i + 5]).toFixed(1));
+          rating = Number(parseVal(lines[i + 7]).toFixed(2));
+        } catch (e) {}
+
+        players.push({ player_name: name, kills: k, assists: a, deaths: d, ADR: adr, KAST: kast, rating });
+        i += 8;
+      }
+      teamsData.push({ team_name, players });
+      continue;
+    }
+
+    else if (lines[i].includes("Rating") && (lines[i].includes("Op.K-D") || /\bK\b.*\bA\b.*\bD\b/.test(lines[i]))) {
+      const header_line = lines[i];
+      let team_name = "";
+      let fmt = "";
+
+      if (header_line.includes("Op.K-D")) {
+        team_name = header_line.split("Op.K-D")[0].trim();
+        fmt = "desktop";
+      } else {
+        team_name = header_line.split(/\s+K\s+/)[0].trim();
+        fmt = "mobile";
+      }
+
+      const half = Math.floor(team_name.length / 2);
+      if (half > 0 && team_name.substring(0, half) === team_name.substring(half)) {
+        team_name = team_name.substring(0, half);
+      }
+
+      const players = [];
+      i++;
+
+      while (players.length < 5 && i < lines.length) {
+        const buffer = [];
+        let stats_line = "";
+
+        while (i < lines.length) {
+          const first_char = lines[i].replace(/[\s\-\:+]/g, "");
+          if (first_char && !isNaN(parseInt(first_char[0]))) {
+            stats_line = lines[i];
+            i++;
+            break;
+          } else {
+            buffer.push(lines[i]);
+            i++;
+          }
+        }
+
+        if (!stats_line) break;
+
+        const player_name = buffer.length > 0 ? buffer[buffer.length - 1] : "Unknown";
+        const clean_line = stats_line.replace(/\(.*?\)/g, "").replace(/:/g, " ");
+        const tokens = clean_line.trim().split(/\s+/);
+
+        let k = 0, a = 0, d = 0, adr = 0, kast = 0, rating = 0;
+
+        if (fmt === "desktop" && tokens.length >= 11) {
+          kast = Number(parseVal(tokens[3]).toFixed(1));
+          k = parseInt(parseVal(tokens[5]));
+          a = parseInt(parseVal(tokens[6]));
+          d = parseInt(parseVal(tokens[7]));
+          adr = Number(parseVal(tokens[8]).toFixed(1));
+          rating = Number(parseVal(tokens[10]).toFixed(2));
+        } else if (fmt === "mobile" && tokens.length >= 7) {
+          k = parseInt(parseVal(tokens[0]));
+          a = parseInt(parseVal(tokens[1]));
+          d = parseInt(parseVal(tokens[2]));
+          adr = Number(parseVal(tokens[3]).toFixed(1));
+          kast = Number(parseVal(tokens[4]).toFixed(1));
+          rating = Number(parseVal(tokens[6]).toFixed(2));
+        }
+
+        players.push({ player_name, kills: k, assists: a, deaths: d, ADR: adr, KAST: kast, rating });
+      }
+      teamsData.push({ team_name, players });
+      continue;
+    }
+    i++;
   }
 
-  function updateStats() {
-    const tournamentName = document.getElementById('tournamentInput').value;
-    const logoLeft = document.getElementById('logoLeftInput').value;
-    const logoRight = document.getElementById('logoRightInput').value;
-    const score1 = document.getElementById('score1Input').value;
-    const score2 = document.getElementById('score2Input').value;
-    const map = document.getElementById('mapInput').value;
-    const rawData = document.getElementById('inputData').value;
+  const result = {
+    team1Name: teamsData[0] ? teamsData[0].team_name : '',
+    team2Name: teamsData[1] ? teamsData[1].team_name : '',
+    team1Players: [],
+    team2Players: []
+  };
+
+  const mapPlayer = p => ({
+    name: p.player_name,
+    stats: {
+      k: p.kills,
+      a: p.assists,
+      d: p.deaths,
+      adr: p.ADR,
+      kast: p.KAST,
+      rating: p.rating
+    }
+  });
+
+  if (teamsData[0]) result.team1Players = teamsData[0].players.map(mapPlayer);
+  if (teamsData[1]) result.team2Players = teamsData[1].players.map(mapPlayer);
+
+  while (result.team1Players.length < 5) result.team1Players.push({ name: '', stats: { k: '', a: '', d: '', adr: '', kast: '', rating: '' } });
+  while (result.team2Players.length < 5) result.team2Players.push({ name: '', stats: { k: '', a: '', d: '', adr: '', kast: '', rating: '' } });
+
+  return result;
+}
+
+function updateStats() {
+    const tournamentName = document.getElementById("tournamentInput").value;
+    const logoLeft = document.getElementById("logoLeftInput").value;
+    const logoRight = document.getElementById("logoRightInput").value;
+    const score1 = document.getElementById("score1Input").value;
+    const score2 = document.getElementById("score2Input").value;
+    const map = document.getElementById("mapInput").value;
+    const rawData = document.getElementById("inputData").value;
 
     if (!rawData.trim()) {
-      showStatus('Введите данные команд', 'error');
-      return;
+        showStatus("Введите данные команд", "error");
+        return;
     }
 
-    document.getElementById('tournamentName').textContent = tournamentName;
-    document.getElementById('logoLeft').src = logoLeft;
-    document.getElementById('logoRight').src = logoRight;
-    document.getElementById('score1').textContent = score1;
-    document.getElementById('score2').textContent = score2;
-    document.getElementById('mapName').textContent = map;
+    document.getElementById("tournamentName").textContent = tournamentName;
+    document.getElementById("logoLeft").src = logoLeft;
+    document.getElementById("logoRight").src = logoRight;
+    document.getElementById("score1").textContent = score1;
+    document.getElementById("score2").textContent = score2;
+    document.getElementById("mapName").textContent = map;
 
-    const overlayDiv = document.getElementById('mapOverlay');
+    const overlayDiv = document.getElementById("mapOverlay");
     if (mapOverlays[map]) {
-      overlayDiv.style.backgroundImage = `url('${mapOverlays[map]}')`;
-      overlayDiv.style.display = 'block';
+        overlayDiv.style.backgroundImage = `url('${mapOverlays[map]}')`;
+        overlayDiv.style.display = "block";
     } else {
-      overlayDiv.style.display = 'none';
-      overlayDiv.style.backgroundImage = '';
+        overlayDiv.style.display = "none";
+        overlayDiv.style.backgroundImage = "";
     }
-    
+
     const parsed = parseData(rawData);
-    
-    let team1Name = parsed.team1Name || 'Team 1';
-    let team2Name = parsed.team2Name || 'Team 2';
-    
+
+    let team1Name = parsed.team1Name || "Team 1";
+    let team2Name = parsed.team2Name || "Team 2";
+
     const team1Logo = getTeamLogo(team1Name);
     const team2Logo = getTeamLogo(team2Name);
-    
-    updateTeamHeader(document.getElementById('team1Header'), team1Name, team1Logo);
-    updateTeamHeader(document.getElementById('team2Header'), team2Name, team2Logo);
-    
-    const team1Body = document.getElementById('team1Body');
-    team1Body.innerHTML = '';
-    for (let i = 0; i < 5; i++) {
-      const player = parsed.team1Players[i];
-      const row = createPlayerRow(player.name, player.stats);
-      team1Body.appendChild(row);
-    }
-    
-    const team2Body = document.getElementById('team2Body');
-    team2Body.innerHTML = '';
-    for (let i = 0; i < 5; i++) {
-      const player = parsed.team2Players[i];
-      const row = createPlayerRow(player.name, player.stats);
-      team2Body.appendChild(row);
-    }
-    
-    showStatus(`✅ Данные загружены: ${team1Name} vs ${team2Name}`, 'success');
-  }
 
-  document.getElementById('updateBtn').addEventListener('click', updateStats);
-  document.getElementById('loadFromSheetBtn').addEventListener('click', loadTeamsFromSheet);
-  
-  document.getElementById('loadExample1').addEventListener('click', () => {
-    document.getElementById('inputData').value = example1;
-    updateStats();
-  });
-  
-  document.getElementById('loadExample2').addEventListener('click', () => {
-    document.getElementById('inputData').value = example2;
-    updateStats();
-  });
-  
-  document.getElementById('downloadBtn').addEventListener('click', () => {
-    const btn = document.getElementById('downloadBtn');
-    btn.textContent = '⏳ Создание...';
-    html2canvas(document.getElementById('board'), { 
-      useCORS: true,
-      scale: 2,
-      backgroundColor: null,
-      allowTaint: false
-    }).then(canvas => {
-      const link = document.createElement('a');
-      link.download = 'mapstats-board.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      btn.textContent = 'Скачать как изображение';
-    }).catch((err) => {
-      btn.textContent = 'Скачать как изображение';
-      showStatus('Ошибка при создании изображения', 'error');
-    });
-  });
+    updateTeamHeader(
+        document.getElementById("team1Header"),
+        team1Name,
+        team1Logo,
+    );
+    updateTeamHeader(
+        document.getElementById("team2Header"),
+        team2Name,
+        team2Logo,
+    );
 
-  document.getElementById('shareBtn').addEventListener('click', async () => {
+    const team1Body = document.getElementById("team1Body");
+    team1Body.innerHTML = "";
+    for (let i = 0; i < 5; i++) {
+        const player = parsed.team1Players[i];
+        const row = createPlayerRow(player.name, player.stats);
+        team1Body.appendChild(row);
+    }
+
+    const team2Body = document.getElementById("team2Body");
+    team2Body.innerHTML = "";
+    for (let i = 0; i < 5; i++) {
+        const player = parsed.team2Players[i];
+        const row = createPlayerRow(player.name, player.stats);
+        team2Body.appendChild(row);
+    }
+
+    showStatus(`✅ Данные загружены: ${team1Name} vs ${team2Name}`, "success");
+}
+
+document.getElementById("updateBtn").addEventListener("click", updateStats);
+document
+    .getElementById("loadFromSheetBtn")
+    .addEventListener("click", loadTeamsFromSheet);
+
+document.getElementById("loadExample1").addEventListener("click", () => {
+    document.getElementById("inputData").value = example1;
+    updateStats();
+});
+
+document.getElementById("loadExample2").addEventListener("click", () => {
+    document.getElementById("inputData").value = example2;
+    updateStats();
+});
+
+document.getElementById("downloadBtn").addEventListener("click", () => {
+    const btn = document.getElementById("downloadBtn");
+    btn.textContent = "⏳ Создание...";
+    html2canvas(document.getElementById("board"), {
+        useCORS: true,
+        scale: 2,
+        backgroundColor: null,
+        allowTaint: false,
+    })
+        .then((canvas) => {
+            const link = document.createElement("a");
+            link.download = "mapstats-board.png";
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+            btn.textContent = "Скачать как изображение";
+        })
+        .catch((err) => {
+            btn.textContent = "Скачать как изображение";
+            showStatus("Ошибка при создании изображения", "error");
+        });
+});
+
+document.getElementById("shareBtn").addEventListener("click", async () => {
     try {
-      const canvas = await html2canvas(document.getElementById('board'), { useCORS: true, scale: 2 });
-      canvas.toBlob(async blob => {
-        const file = new File([blob], 'mapstats-board.png', { type: 'image/png' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file] });
-        } else {
-          showStatus('Ваш браузер не поддерживает Web Share API для файлов. Используйте кнопку "Скачать".', 'info');
-        }
-      });
+        const canvas = await html2canvas(document.getElementById("board"), {
+            useCORS: true,
+            scale: 2,
+        });
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], "mapstats-board.png", {
+                type: "image/png",
+            });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file] });
+            } else {
+                showStatus(
+                    'Ваш браузер не поддерживает Web Share API для файлов. Используйте кнопку "Скачать".',
+                    "info",
+                );
+            }
+        });
     } catch {
-      showStatus('Не удалось создать изображение для шаринга', 'error');
+        showStatus("Не удалось создать изображение для шаринга", "error");
     }
-  });
+});
 
-  setTimeout(() => {
+setTimeout(() => {
     loadTeamsFromSheet();
-  }, 300);
-  
-  // Загружаем пример по умолчанию
-  document.getElementById('inputData').value = example1;
-  updateStats();
+}, 300);
+
+// Загружаем пример по умолчанию
+document.getElementById("inputData").value = example1;
+updateStats();
 </script>
 
 </body>
 </html>
+
