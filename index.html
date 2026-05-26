@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
+  <meta name="viewport" content="width=534, user-scalable=yes" />
   <title>HLTV Mapstats</title>
   <style>
 * {
@@ -11,19 +10,28 @@
     margin: 0;
     padding: 0;
 }
+html {
+    width: max(550px, 100%);
+}
 body {
     background: linear-gradient(to bottom, #d7dce3);
     font-family: Arial, sans-serif;
     padding: 16px;
+    align-items: center;
+    display: flex;
+
+    flex-direction: column;
 }
 
 .controls {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    max-width: 500px;
+    max-width: 521px;
+    min-width: 521px;
     width: 100%;
     margin: 0 auto 24px;
+    /* padding: 0 24px 24px; */
 }
 .controls label {
     display: flex;
@@ -298,9 +306,9 @@ async function loadAllSheets() {
         ]);
 
         tables = {
-            LOGOS: logos.data.slice(1, -1) || [],
-            MAPS: maps.data.slice(1, -1) || [],
-            TEAMS: teams.data.slice(1, -1) || [],
+            LOGOS: logos.data.slice(1) || [],
+            MAPS: maps.data.slice(1) || [],
+            TEAMS: teams.data.slice(1) || [],
         };
 
         $("#tournamentSelect").html('<option value="">-- Выбрать --</option>');
@@ -620,8 +628,21 @@ function showStatus(msg, type) {
         .show();
     setTimeout(() => $st.hide(), 5000);
 }
+$("#downloadBtn").on("click", function () {
+    const $btn = $(this).text("⏳ Создание...");
+    html2canvas(document.getElementById("board"), {
+        useCORS: true,
+        scale: 2,
+        backgroundColor: null,
+    }).then((canvas) => {
+        const link = document.createElement("a");
+        link.download = "mapstats-board.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        $btn.text("Скачать как изображение");
+    });
+});
 
 </script>
 </body>
 </html>
-
