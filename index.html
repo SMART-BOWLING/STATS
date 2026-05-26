@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
-  <title>HLTV Mapstats — мобильная версия</title>
+  <title>HLTV Mapstats</title>
   <style>
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
-
 body {
     background: linear-gradient(to bottom, #d7dce3);
     font-family: Arial, sans-serif;
@@ -25,13 +24,11 @@ body {
     width: 100%;
     margin: 0 auto 24px;
 }
-
 .controls label {
     display: flex;
     flex-direction: column;
     font-size: 16px;
 }
-
 .controls input,
 .controls textarea,
 .controls select {
@@ -43,15 +40,15 @@ body {
     border-radius: 6px;
     border: 1px solid #ccc;
 }
-
 .controls textarea {
     height: 200px;
     resize: vertical;
 }
 
+/* Buttons adjusted to full width */
 .controls button {
-    padding: 20px;
-    font-size: 20px;
+    padding: 16px;
+    font-size: 18px;
     cursor: pointer;
     width: 100%;
     border: none;
@@ -59,12 +56,11 @@ body {
     color: #fff;
     border-radius: 6px;
     transition: background 0.3s ease;
+    margin-top: 4px;
 }
-
 .controls button:hover {
     background: linear-gradient(to right, #2d3f52, #1a2f40);
 }
-
 .controls button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -72,16 +68,13 @@ body {
 
 .board {
     position: relative;
-    width: 100%;
+    width: 521px;
     max-width: 521px;
     margin: 0 auto;
     background: linear-gradient(to bottom, #f0f4f8, #dce3ea);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 0px;
-    padding-bottom: 0px;
     overflow-x: auto;
 }
-
 .map-overlay {
     display: none;
     position: absolute;
@@ -95,26 +88,22 @@ body {
     background-size: cover;
     pointer-events: none;
 }
-
 .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 8px;
 }
-
 .logo {
     max-width: 36px;
     max-height: 36px;
 }
-
 .team-logo-img {
     width: 24px;
     height: 24px;
     object-fit: contain;
     margin-right: 6px;
 }
-
 .tournament-name {
     font-size: 21px;
     font-weight: bold;
@@ -129,12 +118,10 @@ table {
     border-collapse: collapse;
     table-layout: fixed;
 }
-
 thead {
     background: linear-gradient(to right, #1a2f40, #dc143c);
     color: #fff;
 }
-
 th,
 td {
     border-bottom: 1px solid #ccd3dc;
@@ -143,12 +130,10 @@ td {
     font-size: 15px;
     white-space: nowrap;
 }
-
 th.team-name,
 td.team-name {
     text-align: left;
 }
-
 col.score {
     width: 10%;
 }
@@ -171,38 +156,31 @@ col.rating {
 td.rating-low {
     color: #c0392b;
 }
-
 td.rating-high {
     color: #27ae60;
 }
-
 .map-name {
     text-align: center;
     padding: 10px;
     font-weight: bold;
     font-size: 18px;
 }
-
 .current-score {
     background-color: #1a2f40;
     color: #fff;
     font-weight: bold;
 }
-
 .team-cell {
     display: flex;
     align-items: center;
     gap: 6px;
 }
-
 tbody .team-cell {
     transform: translateX(12px);
 }
-
 thead .team-cell {
     transform: translateX(-12px);
 }
-
 tbody .team-cell .team-logo-img {
     display: none;
 }
@@ -216,26 +194,20 @@ tbody .team-cell .team-logo-img {
     text-align: center;
     display: none;
 }
-
 .status.success {
     background: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
-    display: block;
 }
-
 .status.error {
     background: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
-    display: block;
 }
-
 .status.info {
     background: #d1ecf1;
     color: #0c5460;
     border: 1px solid #bee5eb;
-    display: block;
 }
 
 </style>
@@ -246,33 +218,24 @@ tbody .team-cell .team-logo-img {
 
 <div class="controls">
   <label>День №:<input type="number" id="dayInput" value="1" /></label>
-  <label>Название турнира:<input type="text" id="tournamentInput" value="EPL S22 Europe Closed Qualifier" /></label>
-  <label>URL логотипа справа (Турнир):
-    <div style="display: flex; gap: 8px;">
-      <input type="text" id="logoRightInput" value="https://i.postimg.cc/JnRCsqYT/EPL20.png" style="flex-grow: 1;" />
-      <button id="saveTournamentBtn" style="width: auto; padding: 10px; font-size: 16px;">💾 Save</button>
+  <label>Название турнира:
+    <select id="tournamentSelect"><option value="">-- Выбрать --</option></select>
+    <input type="text" id="tournamentInput" placeholder="Или введите новый..." />
+  </label>
+  <label>URL логотипа турнира:
+    <div style="display:flex; gap:5px;">
+        <input type="text" id="logoRightInput" />
+        <button id="saveTournamentBtn" style="margin-top:4px;">💾</button>
     </div>
   </label>
-  <label>Счёт первой команды:<input type="number" id="score1Input" value="13" /></label>
-  <label>Счёт второй команды:<input type="number" id="score2Input" value="9" /></label>
-  <label>Название карты:
-    <select id="mapInput">
-      <option value="INFERNO">INFERNO</option>
-      <option value="DUST 2">DUST 2</option>
-      <option value="TRAIN">TRAIN</option>
-      <option value="NUKE">NUKE</option>
-      <option value="ANCIENT">ANCIENT</option>
-      <option value="OVERPASS">OVERPASS</option>
-      <option value="MIRAGE">MIRAGE</option>
-      <option value="ANUBIS">ANUBIS</option>
-    </select>
-  </label>
-  <label>Данные команд:
-    <textarea id="inputData" rows="10"></textarea>
-  </label>
+  <label>Счёт: <div style="display:flex; gap:5px;"><input type="number" id="score1Input" value="13"><input type="number" id="score2Input" value="9"></div></label>
+  <label>Карта: <select id="mapInput"></select></label>
+  <label>Данные:<textarea id="inputData"></textarea></label>
+  
   <button id="updateBtn">Обновить статистику</button>
+  <button id="reloadAllBtn">🔄 Перезагрузить данные из таблиц</button>
   <button id="saveDbBtn">💾 Сохранить в таблицу</button>
-  <button id="downloadBtn">Скачать как изображение</button>
+  <button id="downloadBtn">Скачать (PNG)</button>
   <button id="shareBtn">Поделиться</button>
 </div>
 
@@ -293,75 +256,65 @@ tbody .team-cell .team-logo-img {
 <div class="board" id="board">
   <div class="map-overlay" id="mapOverlay"></div>
   <div class="header">
-    <img id="logoLeft" class="logo" src="https://i.postimg.cc/FKc97q4Q/2.png" crossorigin="anonymous" alt="Logo Left" />
+    <img id="logoLeft" class="logo" src="" crossorigin="anonymous" alt="Logo Left" />
     <h1 id="tournamentName" class="tournament-name"></h1>
     <img id="logoRight" class="logo" src="" crossorigin="anonymous" alt="Logo Right" />
   </div>
-  
   <table>
     <colgroup><col class="score"><col class="team"><col class="stat"><col class="stat"><col class="stat"><col class="stat adr"><col class="stat kast"><col class="rating"></colgroup>
-    <thead>
-      <tr><th id="score1" class="current-score">0</th><th id="team1Header" class="team-name">Team1</th><th>K</th><th>A</th><th>D</th><th>ADR</th><th>KAST</th><th>Rating</th></tr>
-    </thead>
+    <thead><tr><th id="score1" class="current-score">0</th><th id="team1Header" class="team-name">Team1</th><th>K</th><th>A</th><th>D</th><th>ADR</th><th>KAST</th><th>Rating</th></tr></thead>
     <tbody id="team1Body"></tbody>
   </table>
-
   <table>
     <colgroup><col class="score"><col class="team"><col class="stat"><col class="stat"><col class="stat"><col class="stat adr"><col class="stat kast"><col class="rating"></colgroup>
-    <thead>
-      <tr><th id="score2" class="current-score">0</th><th id="team2Header" class="team-name">Team2</th><th>K</th><th>A</th><th>D</th><th>ADR</th><th>KAST</th><th>Rating</th></tr>
-    </thead>
+    <thead><tr><th id="score2" class="current-score">0</th><th id="team2Header" class="team-name">Team2</th><th>K</th><th>A</th><th>D</th><th>ADR</th><th>KAST</th><th>Rating</th></tr></thead>
     <tbody id="team2Body"></tbody>
   </table>
-  <div id="mapName" class="map-name">INFERNO</div>
+  <div id="mapName" class="map-name"></div>
 </div>
 
 <script>
-// CONSTANTS
+// --- 1. CONFIGURATION & STATE ---
 const API_URL =
     "https://script.google.com/macros/s/AKfycby47B5_u7CLZCiE2H__19zmCvZ6riW61m3cdkv15dCLSCqySl3u7XgVEkUjvYybMQji/exec";
 const SHEET_ID = "188jMHUJs1KkmCAzG7XZYTnTY9SnNIx0JlXJoEdMTees";
-
-// GLOBAL STATE
 let tables = { LOGOS: [], MAPS: [], TEAMS: [] };
 let currentParse = null;
 
-// API HELPER
-async function apiCall(payload) {
-    payload.sheetId = SHEET_ID;
-    return $.ajax({
-        url: API_URL,
-        method: "POST",
-        dataType: "json",
-        contentType: "text/plain;charset=utf-8",
-        data: JSON.stringify(payload),
-    });
-}
-
-function showStatus(msg, type) {
-    const $st = $("#statusMessage")
-        .text(msg)
-        .removeClass("success error info")
-        .addClass(type)
-        .show();
-    setTimeout(() => $st.hide(), 5000);
-}
-
-// INIT
+// --- 2. CORE INITIALIZATION ---
 $(document).ready(async function () {
+    await loadAllSheets();
+    handleUpdate();
+});
+
+async function loadAllSheets() {
     showStatus("Загрузка баз данных...", "info");
     try {
-        const [logosRes, mapsRes, teamsRes] = await Promise.all([
+        const [logos, maps, teams] = await Promise.all([
             apiCall({ operation: "SELECT", sheetName: "LOGOS" }),
             apiCall({ operation: "SELECT", sheetName: "MAPS" }),
             apiCall({ operation: "SELECT", sheetName: "TEAMS" }),
         ]);
 
-        tables.LOGOS = logosRes.data || [];
-        tables.MAPS = mapsRes.data || [];
-        tables.TEAMS = teamsRes.data || [];
+        tables = {
+            LOGOS: logos.data.slice(1, -1) || [],
+            MAPS: maps.data.slice(1, -1) || [],
+            TEAMS: teams.data.slice(1, -1) || [],
+        };
 
-        // Setup default left logo
+        $("#tournamentSelect").html('<option value="">-- Выбрать --</option>');
+        tables.LOGOS.forEach((r) => {
+            if (r[0] !== "CSPORTS_LOGO")
+                $("#tournamentSelect").append(
+                    `<option value="${r[0]}">${r[0]}</option>`,
+                );
+        });
+
+        $("#mapInput").html("");
+        tables.MAPS.forEach((r) =>
+            $("#mapInput").append(`<option value="${r[0]}">${r[0]}</option>`),
+        );
+
         const csLogo = tables.LOGOS.find((r) => r[0] === "CSPORTS_LOGO");
         if (csLogo) $("#logoLeft").attr("src", csLogo[1]);
 
@@ -369,22 +322,28 @@ $(document).ready(async function () {
     } catch (e) {
         showStatus("Ошибка загрузки БД: " + e.message, "error");
     }
-});
+}
 
-// UI EVENT HANDLERS
-$("#inputData").on("input", handleUpdate);
-$("#updateBtn").on("click", handleUpdate);
+// --- 3. UI EVENT HANDLERS ---
+$(document).on("input", ".controls", () => handleUpdate());
+
 $("#tournamentInput").on("input", function () {
     const tName = $(this).val().trim();
     const logoRow = tables.LOGOS.find((r) => r[0] === tName);
     if (logoRow) $("#logoRightInput").val(logoRow[1]);
 });
 
+$("#tournamentSelect").on("change", function () {
+    const val = $(this).val();
+    if (val) {
+        $("#tournamentInput").val(val).trigger("input");
+    }
+});
+
 $("#saveTournamentBtn").on("click", async function () {
     const id = $("#tournamentInput").val().trim();
     const url = $("#logoRightInput").val().trim();
     if (!id) return;
-
     $(this).text("⏳");
     await apiCall({
         operation: "UPSERT",
@@ -393,233 +352,22 @@ $("#saveTournamentBtn").on("click", async function () {
         keyMatchValue: id,
         rowData: [id, url],
     });
-
-    // Update local state
-    const existing = tables.LOGOS.find((r) => r[0] === id);
-    if (existing) existing[1] = url;
-    else tables.LOGOS.push([id, url]);
-
-    $(this).text("💾 Save");
-    showStatus("Логотип турнира сохранен!", "success");
-    handleUpdate();
+    $(this).text("💾");
+    showStatus("Турнир сохранен!", "success");
 });
 
-// MAIN LOGIC
+$("#reloadAllBtn").on("click", loadAllSheets);
+
+// --- 4. DATA PROCESSING ---
 async function handleUpdate() {
     const rawData = $("#inputData").val().trim();
     if (!rawData) return;
     currentParse = parseData(rawData);
-
-    // Enforce DB Teams
     await enforceTeamModal(currentParse.team1Name);
     await enforceTeamModal(currentParse.team2Name);
-
     renderBoard();
 }
 
-function enforceTeamModal(teamName) {
-    return new Promise((resolve) => {
-        if (!teamName || teamName === "Team 1" || teamName === "Team 2")
-            return resolve();
-
-        const exists = tables.TEAMS.find(
-            (r) => r[0].toLowerCase() === teamName.toLowerCase(),
-        );
-        if (exists) return resolve();
-
-        $("#modalTeamNameLabel").text(teamName);
-        $("#modalFullTeamName").val(teamName);
-        $("#modalShortName").val(teamName);
-        $("#modalTeamLogo").val("");
-        $("#teamModal").css("display", "flex");
-
-        $("#saveTeamBtn")
-            .off("click")
-            .on("click", async function () {
-                $(this).text("⏳ Сохранение...");
-                const sName = $("#modalShortName").val();
-                const url = $("#modalTeamLogo").val();
-
-                await apiCall({
-                    operation: "UPSERT",
-                    sheetName: "TEAMS",
-                    keyColumnIndex: 0,
-                    keyMatchValue: teamName,
-                    rowData: [teamName, sName, url],
-                });
-                tables.TEAMS.push([teamName, sName, url]);
-
-                $(this).text("Сохранить команду");
-                $("#teamModal").hide();
-                resolve();
-            });
-    });
-}
-
-function renderBoard() {
-    $("#tournamentName").text($("#tournamentInput").val());
-    $("#logoRight").attr("src", $("#logoRightInput").val());
-    $("#score1").text($("#score1Input").val());
-    $("#score2").text($("#score2Input").val());
-
-    const mapName = $("#mapInput").val();
-    $("#mapName").text(mapName);
-
-    const mapRow = tables.MAPS.find((r) => r[0] === mapName);
-    if (mapRow) {
-        $("#mapOverlay").css("background-image", `url('${mapRow[1]}')`).show();
-    } else {
-        $("#mapOverlay").hide();
-    }
-
-    renderTeam("team1", currentParse.team1Name, currentParse.team1Players);
-    renderTeam("team2", currentParse.team2Name, currentParse.team2Players);
-}
-
-function renderTeam(prefix, fullName, players) {
-    let tName = fullName;
-    let tLogo = "";
-    const tRow = tables.TEAMS.find(
-        (r) => r[0].toLowerCase() === fullName.toLowerCase(),
-    );
-
-    if (tRow) {
-        if (tRow[1]) tName = tRow[1]; // Short name
-        if (tRow[2]) tLogo = tRow[2]; // URL
-    }
-
-    // Header
-    const $header = $(`#${prefix}Header`).empty();
-    const $div = $("<div>").addClass("team-cell");
-    if (tLogo)
-        $div.append($("<img>").attr("src", tLogo).addClass("team-logo-img"));
-    $div.append($("<span>").text(tName));
-    $header.append($div);
-
-    // Body
-    const $body = $(`#${prefix}Body`).empty();
-    players.forEach((p) => {
-        const ratingNum = parseFloat(p.stats.rating);
-        const ratingClass = isNaN(ratingNum)
-            ? ""
-            : ratingNum >= 1
-              ? "rating-high"
-              : "rating-low";
-
-        const row = `<tr>
-            <td colspan="2" class="team-name"><div class="team-cell"><span>${p.name}</span></div></td>
-            <td>${p.stats.k}</td><td>${p.stats.a}</td><td>${p.stats.d}</td>
-            <td>${p.stats.adr}</td><td>${p.stats.kast}</td>
-            <td class="${ratingClass}">${p.stats.rating}</td>
-        </tr>`;
-        $body.append(row);
-    });
-}
-
-// SAVE TO DB LOGIC
-$("#saveDbBtn").on("click", async function () {
-    if (!currentParse) return showStatus("Нет данных для сохранения", "error");
-
-    const btn = $(this).text("⏳ Сохранение...");
-    const tName = $("#tournamentInput").val();
-    const sheetName = `Результати ${tName}`;
-
-    try {
-        await apiCall({
-            operation: "CREATE_TABLE",
-            sheetName: sheetName,
-            headers: [
-                "Player name",
-                "Team name",
-                "Opponent team",
-                "Day",
-                "Map name",
-                "Op.K-D",
-                "MKs",
-                "KAST",
-                "1vsX",
-                "K (hs)",
-                "A (f)",
-                "D (t)",
-                "ADR",
-                "Swing",
-                "Rating3.0",
-                "Created at",
-            ],
-        });
-    } catch (e) {
-        /* Ignore if exists */
-    }
-
-    const day = $("#dayInput").val();
-    const map = $("#mapInput").val();
-    const timestamp = new Date().toISOString();
-    const rows = [];
-
-    const formatRow = (player, team, opp) => [
-        player.name,
-        team,
-        opp,
-        day,
-        map,
-        "",
-        "",
-        player.stats.kast,
-        "",
-        player.stats.k,
-        player.stats.a,
-        player.stats.d,
-        "'" + player.stats.adr,
-        "",
-        "'" + player.stats.rating,
-        timestamp,
-    ];
-
-    currentParse.team1Players.forEach((p) =>
-        rows.push(formatRow(p, currentParse.team1Name, currentParse.team2Name)),
-    );
-    currentParse.team2Players.forEach((p) =>
-        rows.push(formatRow(p, currentParse.team2Name, currentParse.team1Name)),
-    );
-
-    await apiCall({ operation: "INSERT", sheetName: sheetName, rows: rows });
-
-    showStatus("Данные матча сохранены в таблицу!", "success");
-    btn.text("💾 Сохранить в таблицу");
-});
-
-// HTML2CANVAS EXPORTS
-$("#downloadBtn").on("click", function () {
-    const $btn = $(this).text("⏳ Создание...");
-    html2canvas(document.getElementById("board"), {
-        useCORS: true,
-        scale: 2,
-        backgroundColor: null,
-    }).then((canvas) => {
-        const link = document.createElement("a");
-        link.download = "mapstats-board.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-        $btn.text("Скачать как изображение");
-    });
-});
-
-$("#shareBtn").on("click", async function () {
-    const canvas = await html2canvas(document.getElementById("board"), {
-        useCORS: true,
-        scale: 2,
-    });
-    canvas.toBlob(async (blob) => {
-        const file = new File([blob], "mapstats.png", { type: "image/png" });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file] });
-        } else {
-            showStatus("Share API не поддерживается.", "info");
-        }
-    });
-});
-
-// PARSER UTILITY
 function parseData(rawText) {
     const text = rawText
         .replace(/\u00A0/g, " ")
@@ -690,15 +438,186 @@ function parseData(rawText) {
 
     result.team1Players = players.slice(0, 5).map(formatP);
     result.team2Players = players.slice(5, 10).map(formatP);
-
     const empty = () => ({
         name: "",
         stats: { k: "0", a: "0", d: "0", adr: "", kast: "", rating: "" },
     });
     while (result.team1Players.length < 5) result.team1Players.push(empty());
     while (result.team2Players.length < 5) result.team2Players.push(empty());
-
     return result;
+}
+
+// --- 5. UI RENDERING ---
+function renderBoard() {
+    $("#tournamentName").text($("#tournamentInput").val());
+    $("#logoRight").attr("src", $("#logoRightInput").val());
+    $("#score1").text($("#score1Input").val());
+    $("#score2").text($("#score2Input").val());
+    $("#mapName").text($("#mapInput").val());
+
+    const mapRow = tables.MAPS.find((r) => r[0] === $("#mapInput").val());
+    if (mapRow) {
+        $("#mapOverlay").css("background-image", `url('${mapRow[1]}')`).show();
+    } else {
+        $("#mapOverlay").hide();
+    }
+
+    renderTeam("team1", currentParse.team1Name, currentParse.team1Players);
+    renderTeam("team2", currentParse.team2Name, currentParse.team2Players);
+}
+
+function renderTeam(prefix, fullName, players) {
+    let tName = fullName,
+        tLogo = "";
+    const tRow = tables.TEAMS.find(
+        (r) => r[0].toLowerCase() === fullName.toLowerCase(),
+    );
+    if (tRow) {
+        if (tRow[1]) tName = tRow[1];
+        if (tRow[2]) tLogo = tRow[2];
+    }
+
+    const $header = $(`#${prefix}Header`).empty();
+    const $div = $("<div>").addClass("team-cell");
+    if (tLogo)
+        $div.append($("<img>").attr("src", tLogo).addClass("team-logo-img"));
+    $div.append($("<span>").text(tName));
+    $header.append($div);
+
+    const $body = $(`#${prefix}Body`).empty();
+    players.forEach((p) => {
+        const ratingNum = parseFloat(p.stats.rating);
+        const ratingClass = isNaN(ratingNum)
+            ? ""
+            : ratingNum >= 1
+              ? "rating-high"
+              : "rating-low";
+        $body.append(
+            `<tr><td colspan="2" class="team-name"><div class="team-cell"><span>${p.name}</span></div></td><td>${p.stats.k}</td><td>${p.stats.a}</td><td>${p.stats.d}</td><td>${p.stats.adr}</td><td>${p.stats.kast}</td><td class="${ratingClass}">${p.stats.rating}</td></tr>`,
+        );
+    });
+}
+
+// --- 6. UTILITIES (API, Modal, Save) ---
+async function enforceTeamModal(teamName) {
+    if (!teamName || teamName === "Team 1" || teamName === "Team 2") return;
+    if (tables.TEAMS.find((r) => r[0].toLowerCase() === teamName.toLowerCase()))
+        return;
+
+    $("#modalTeamNameLabel").text(teamName);
+    $("#teamModal").css("display", "flex");
+    $("#saveTeamBtn")
+        .off("click")
+        .on("click", async function () {
+            const sName = $("#modalShortName").val(),
+                url = $("#modalTeamLogo").val();
+            await apiCall({
+                operation: "UPSERT",
+                sheetName: "TEAMS",
+                keyColumnIndex: 0,
+                keyMatchValue: teamName,
+                rowData: [teamName, sName, url],
+            });
+            tables.TEAMS.push([teamName, sName, url]);
+            $("#teamModal").hide();
+            handleUpdate();
+        });
+}
+
+$("#saveDbBtn").on("click", async function () {
+    if (!currentParse) return;
+    const tName = $("#tournamentInput").val(),
+        sheetName = `Результати ${tName}`,
+        day = $("#dayInput").val(),
+        map = $("#mapInput").val(),
+        ts = new Date().toISOString();
+    try {
+        await apiCall({
+            operation: "CREATE_TABLE",
+            sheetName: sheetName,
+            headers: [
+                "Player name",
+                "Team name",
+                "Opponent team",
+                "Day",
+                "Map name",
+                "Op.K-D",
+                "MKs",
+                "KAST",
+                "1vsX",
+                "K (hs)",
+                "A (f)",
+                "D (t)",
+                "ADR",
+                "Swing",
+                "Rating3.0",
+                "Created at",
+            ],
+        });
+    } catch (e) {}
+    const rows = [];
+    currentParse.team1Players.forEach((p) =>
+        rows.push([
+            p.name,
+            currentParse.team1Name,
+            currentParse.team2Name,
+            day,
+            map,
+            "",
+            "",
+            p.stats.kast,
+            "",
+            p.stats.k,
+            p.stats.a,
+            p.stats.d,
+            "'" + p.stats.adr,
+            "",
+            "'" + p.stats.rating,
+            ts,
+        ]),
+    );
+    currentParse.team2Players.forEach((p) =>
+        rows.push([
+            p.name,
+            currentParse.team2Name,
+            currentParse.team1Name,
+            day,
+            map,
+            "",
+            "",
+            p.stats.kast,
+            "",
+            p.stats.k,
+            p.stats.a,
+            p.stats.d,
+            "'" + p.stats.adr,
+            "",
+            "'" + p.stats.rating,
+            ts,
+        ]),
+    );
+    await apiCall({ operation: "INSERT", sheetName: sheetName, rows: rows });
+    showStatus("Сохранено!", "success");
+});
+
+async function apiCall(payload) {
+    payload.sheetId = SHEET_ID;
+    return $.ajax({
+        url: API_URL,
+        method: "POST",
+        dataType: "json",
+        contentType: "text/plain;charset=utf-8",
+        data: JSON.stringify(payload),
+    });
+}
+
+function showStatus(msg, type) {
+    const $st = $("#statusMessage")
+        .text(msg)
+        .removeClass("success error info")
+        .addClass(type)
+        .show();
+    setTimeout(() => $st.hide(), 5000);
 }
 
 </script>
