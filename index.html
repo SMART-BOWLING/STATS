@@ -1,85 +1,165 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=534, user-scalable=yes" />
-  <title>HLTV Mapstats</title>
-  <style>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=550, user-scalable=no" />
+        <title>HLTV Mapstats</title>
+        <style>
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    font-size: 16px;
 }
 html {
     width: max(550px, 100%);
 }
 body {
-    background: linear-gradient(to bottom, #d7dce3);
-    font-family: Arial, sans-serif;
-    padding: 16px;
+    background: #f2f2f7;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+        sans-serif;
+    padding: 20px 16px;
     align-items: center;
     display: flex;
-
     flex-direction: column;
 }
-
+.app-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1100px;
+    align-items: center;
+    gap: 24px;
+}
 .controls {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     max-width: 521px;
     min-width: 521px;
     width: 100%;
-    margin: 0 auto 24px;
-    /* padding: 0 24px 24px; */
 }
-.controls label {
+.row-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1c1c1e;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+.col-label {
     display: flex;
     flex-direction: column;
+    background: #ffffff;
+    padding: 12px 16px;
+    border-radius: 12px;
     font-size: 16px;
+    font-weight: 500;
+    color: #1c1c1e;
+    gap: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+.controls span {
+    white-space: nowrap;
 }
 .controls input,
-.controls textarea,
-.controls select {
-    margin-top: 4px;
-    padding: 10px;
-    font-family: monospace;
-    font-size: 19px;
-    width: 100%;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+.controls select,
+.controls textarea {
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    background: #f2f2f7;
+    color: #1c1c1e;
+    outline: none;
+    transition: background 0.2s;
+}
+.controls input:focus,
+.controls select:focus,
+.controls textarea:focus {
+    background: #e5e5ea;
 }
 .controls textarea {
-    height: 200px;
+    height: 120px;
     resize: vertical;
-}
-
-/* Buttons adjusted to full width */
-.controls button {
-    padding: 16px;
-    font-size: 18px;
-    cursor: pointer;
     width: 100%;
+}
+.input-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+    flex-grow: 1;
+    margin-left: 16px;
+}
+.row-label input,
+.row-label select {
+    text-align: right;
+    max-width: 160px;
+}
+.row-label select {
+    direction: rtl;
+}
+.score-group input {
+    width: 60px;
+    text-align: center;
+}
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+.btn-group {
+    display: flex;
+    gap: 8px;
+}
+.primary-btn,
+.secondary-btn {
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
     border: none;
-    background: linear-gradient(to right, #1a2f40, #2d3f52);
-    color: #fff;
-    border-radius: 6px;
-    transition: background 0.3s ease;
-    margin-top: 4px;
+    border-radius: 12px;
+    transition:
+        opacity 0.2s ease,
+        transform 0.1s ease;
+    width: 100%;
 }
-.controls button:hover {
-    background: linear-gradient(to right, #2d3f52, #1a2f40);
+.primary-btn {
+    background: #1a2b3c;
+    color: #ffffff;
 }
-.controls button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.secondary-btn {
+    background: #e5e5ea;
+    color: #1a2b3c;
 }
-
+.primary-btn:active,
+.secondary-btn:active {
+    transform: scale(0.98);
+}
+.icon-btn {
+    padding: 8px 10px;
+    font-size: 18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+}
+.icon-btn:hover {
+    background: #e5e5ea;
+}
 .board {
     position: relative;
     width: 521px;
     max-width: 521px;
-    margin: 0 auto;
     background: linear-gradient(to bottom, #f0f4f8, #dce3ea);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     overflow-x: auto;
@@ -121,7 +201,6 @@ body {
     margin: 0 8px;
     word-break: break-word;
 }
-
 table {
     width: 100%;
     border-collapse: collapse;
@@ -150,7 +229,7 @@ col.team {
     width: 26%;
 }
 col.stat {
-    width: 10%;
+    width: 7%;
 }
 col.stat.kast {
     width: 15%;
@@ -161,7 +240,6 @@ col.stat.adr {
 col.rating {
     width: 19%;
 }
-
 td.rating-low {
     color: #c0392b;
 }
@@ -193,7 +271,6 @@ thead .team-cell {
 tbody .team-cell .team-logo-img {
     display: none;
 }
-
 .status {
     max-width: 500px;
     margin: 10px auto;
@@ -219,70 +296,292 @@ tbody .team-cell .team-logo-img {
     border: 1px solid #bee5eb;
 }
 
+/* #downloadBtn { */
+/*     display: none; */
+/* } */
+/**/
+/* @media (min-width: 1100px) { */
+/*     .app-container { */
+/*         flex-direction: row; */
+/*         align-items: flex-start; */
+/*         justify-content: center; */
+/*         gap: 40px; */
+/*     } */
+/*     #downloadBtn { */
+/*         display: block; */
+/*     } */
+/*     #shareBtn { */
+/*         display: none; */
+/*     } */
+/* } */
+
 </style>
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-</head>
-<body>
+        <style>
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
 
-<div class="controls">
-  <label>День №:<input type="number" id="dayInput" value="1" /></label>
-  <label>Название турнира:
-    <select id="tournamentSelect"><option value="">-- Выбрать --</option></select>
-    <input type="text" id="tournamentInput" placeholder="Или введите новый..." />
-  </label>
-  <label>URL логотипа турнира:
-    <div style="display:flex; gap:5px;">
-        <input type="text" id="logoRightInput" />
-        <button id="saveTournamentBtn" style="margin-top:4px;">💾</button>
-    </div>
-  </label>
-  <label>Счёт: <div style="display:flex; gap:5px;"><input type="number" id="score1Input" value="13"><input type="number" id="score2Input" value="9"></div></label>
-  <label>Карта: <select id="mapInput"></select></label>
-  <label>Данные:<textarea id="inputData"></textarea></label>
-  
-  <button id="updateBtn">Обновить статистику</button>
-  <button id="reloadAllBtn">🔄 Перезагрузить данные из таблиц</button>
-  <button id="saveDbBtn">💾 Сохранить в таблицу</button>
-  <button id="downloadBtn">Скачать (PNG)</button>
-  <button id="shareBtn">Поделиться</button>
-</div>
+.modal-content {
+    background: #f2f2f7;
+    padding: 24px;
+    border-radius: 16px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    position: relative;
+}
 
-<div id="statusMessage" class="status"></div>
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 28px;
+    color: #8e8e93;
+    cursor: pointer;
+    line-height: 1;
+    user-select: none;
+    transition: color 0.2s;
+}
 
-<div id="teamModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-   <div style="background:white; padding:20px; border-radius:8px; max-width:400px; width:100%;">
-      <h3>Новая команда: <span id="modalTeamNameLabel"></span></h3>
-      <input type="hidden" id="modalFullTeamName">
-      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-        <label>Короткое имя: <input type="text" id="modalShortName" style="width: 100%; padding: 8px;" /></label>
-        <label>URL Логотипа: <input type="text" id="modalTeamLogo" style="width: 100%; padding: 8px;" /></label>
-        <button id="saveTeamBtn" style="padding: 10px; background: #1a2f40; color: white; border: none; border-radius: 4px;">Сохранить команду</button>
-      </div>
-   </div>
-</div>
+.modal-close:hover {
+    color: #1c1c1e;
+}
 
-<div class="board" id="board">
-  <div class="map-overlay" id="mapOverlay"></div>
-  <div class="header">
-    <img id="logoLeft" class="logo" src="" crossorigin="anonymous" alt="Logo Left" />
-    <h1 id="tournamentName" class="tournament-name"></h1>
-    <img id="logoRight" class="logo" src="" crossorigin="anonymous" alt="Logo Right" />
-  </div>
-  <table>
-    <colgroup><col class="score"><col class="team"><col class="stat"><col class="stat"><col class="stat"><col class="stat adr"><col class="stat kast"><col class="rating"></colgroup>
-    <thead><tr><th id="score1" class="current-score">0</th><th id="team1Header" class="team-name">Team1</th><th>K</th><th>A</th><th>D</th><th>ADR</th><th>KAST</th><th>Rating</th></tr></thead>
-    <tbody id="team1Body"></tbody>
-  </table>
-  <table>
-    <colgroup><col class="score"><col class="team"><col class="stat"><col class="stat"><col class="stat"><col class="stat adr"><col class="stat kast"><col class="rating"></colgroup>
-    <thead><tr><th id="score2" class="current-score">0</th><th id="team2Header" class="team-name">Team2</th><th>K</th><th>A</th><th>D</th><th>ADR</th><th>KAST</th><th>Rating</th></tr></thead>
-    <tbody id="team2Body"></tbody>
-  </table>
-  <div id="mapName" class="map-name"></div>
-</div>
+.modal-title {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
 
-<script>
+.modal-team-name {
+    color: #007aff;
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.modal-label {
+    box-shadow: none !important;
+    margin: 0 !important;
+}
+
+.modal-label-text {
+    font-size: 14px;
+    color: #666;
+}
+
+.modal-input {
+    text-align: left !important;
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+.modal-submit {
+    margin-top: 8px;
+}
+
+</style>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    </head>
+    <body>
+        <div id="statusMessage" class="status"></div>
+        <div class="app-container">
+            <div class="controls">
+                <label class="row-label">
+                    <span>День №</span>
+                    <input type="number" id="dayInput" value="1" />
+                </label>
+                <label class="row-label">
+                    <span>Турнир</span>
+                    <input
+                        type="text"
+                        id="tournamentInput"
+                        list="tournamentList"
+                        placeholder="Выбрать или ввести..."
+                    />
+                    <datalist id="tournamentList"></datalist>
+                </label>
+                <label class="row-label">
+                    <span>Лого турнира (URL)</span>
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            id="logoRightInput"
+                            placeholder="https://..."
+                        />
+                        <button id="saveTournamentBtn" class="icon-btn">
+                            ↓
+                        </button>
+                    </div>
+                </label>
+                <label class="row-label">
+                    <span>Счёт</span>
+                    <div class="input-group score-group">
+                        <input type="number" id="score1Input" />
+                        <span style="color: #8e8e93; font-weight: bold">:</span>
+                        <input type="number" id="score2Input" />
+                    </div>
+                </label>
+                <label class="row-label">
+                    <span>Карта</span>
+                    <select id="mapInput"></select>
+                </label>
+                <label class="col-label">
+                    <span>Данные команд</span>
+                    <textarea
+                        id="inputData"
+                        placeholder="Вставьте статистику..."
+                    ></textarea>
+                </label>
+
+                <div class="action-buttons">
+                    <button id="updateBtn" class="primary-btn">
+                        Обновить статистику
+                    </button>
+                    <button id="reloadAllBtn" class="secondary-btn">
+                        Перезагрузить данные
+                    </button>
+                    <button id="saveDbBtn" class="primary-btn">
+                        Сохранить в таблицу
+                    </button>
+                    <div class="btn-group">
+                        <button id="downloadBtn" class="secondary-btn">
+                            Скачать (PNG)
+                        </button>
+                        <button id="shareBtn" class="secondary-btn">
+                            Поделиться
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="board" id="board">
+                <div class="map-overlay" id="mapOverlay"></div>
+                <div class="header">
+                    <img
+                        id="logoLeft"
+                        class="logo"
+                        src=""
+                        crossorigin="anonymous"
+                        alt="Logo Left"
+                    />
+                    <h1 id="tournamentName" class="tournament-name"></h1>
+                    <img
+                        id="logoRight"
+                        class="logo"
+                        src=""
+                        crossorigin="anonymous"
+                        alt="Logo Right"
+                    />
+                </div>
+                <table>
+                    <colgroup>
+                        <col class="score" />
+                        <col class="team" />
+                        <col class="stat" />
+                        <col class="stat" />
+                        <col class="stat" />
+                        <col class="stat adr" />
+                        <col class="stat kast" />
+                        <col class="rating" />
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th id="score1" class="current-score">0</th>
+                            <th id="team1Header" class="team-name">Team1</th>
+                            <th>K</th>
+                            <th>A</th>
+                            <th>D</th>
+                            <th>ADR</th>
+                            <th>KAST</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody id="team1Body"></tbody>
+                </table>
+                <table>
+                    <colgroup>
+                        <col class="score" />
+                        <col class="team" />
+                        <col class="stat" />
+                        <col class="stat" />
+                        <col class="stat" />
+                        <col class="stat adr" />
+                        <col class="stat kast" />
+                        <col class="rating" />
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th id="score2" class="current-score">0</th>
+                            <th id="team2Header" class="team-name">Team2</th>
+                            <th>K</th>
+                            <th>A</th>
+                            <th>D</th>
+                            <th>ADR</th>
+                            <th>KAST</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody id="team2Body"></tbody>
+                </table>
+                <div id="mapName" class="map-name"></div>
+            </div>
+        </div>
+
+        <div id="teamModal" class="modal-overlay">
+            <div class="modal-content">
+                <span class="modal-close" id="closeModalBtn">&times;</span>
+                <h3 class="modal-title">
+                    Новая команда:<br /><span
+                        id="modalTeamNameLabel"
+                        class="modal-team-name"
+                    ></span>
+                </h3>
+                <input type="hidden" id="modalFullTeamName" />
+
+                <div class="modal-form">
+                    <label class="col-label modal-label">
+                        <span class="modal-label-text">Короткое имя:</span>
+                        <input
+                            type="text"
+                            id="modalShortName"
+                            class="modal-input"
+                        />
+                    </label>
+
+                    <label class="col-label modal-label">
+                        <span class="modal-label-text">URL Логотипа:</span>
+                        <input
+                            type="text"
+                            id="modalTeamLogo"
+                            class="modal-input"
+                        />
+                    </label>
+
+                    <button id="saveTeamBtn" class="primary-btn modal-submit">
+                        Сохранить команду
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
 // --- 1. CONFIGURATION & STATE ---
 const API_URL =
     "https://script.google.com/macros/s/AKfycby47B5_u7CLZCiE2H__19zmCvZ6riW61m3cdkv15dCLSCqySl3u7XgVEkUjvYybMQji/exec";
@@ -310,12 +609,12 @@ async function loadAllSheets() {
             MAPS: maps.data.slice(1) || [],
             TEAMS: teams.data.slice(1) || [],
         };
-
-        $("#tournamentSelect").html('<option value="">-- Выбрать --</option>');
-        tables.LOGOS.forEach((r) => {
+        $("#tournamentList").html("");
+        $("#tournamentInput")[0].value = tables.LOGOS.at(-1)[0];
+        tables.LOGOS.reverse().forEach((r) => {
             if (r[0] !== "CSPORTS_LOGO")
-                $("#tournamentSelect").append(
-                    `<option value="${r[0]}">${r[0]}</option>`,
+                $("#tournamentList").append(
+                    `<option value="${r[0]}"></option>`,
                 );
         });
 
@@ -628,6 +927,7 @@ function showStatus(msg, type) {
         .show();
     setTimeout(() => $st.hide(), 5000);
 }
+
 $("#downloadBtn").on("click", function () {
     const $btn = $(this).text("⏳ Создание...");
     html2canvas(document.getElementById("board"), {
@@ -639,10 +939,34 @@ $("#downloadBtn").on("click", function () {
         link.download = "mapstats-board.png";
         link.href = canvas.toDataURL("image/png");
         link.click();
-        $btn.text("Скачать как изображение");
+        $btn.text("Скачать (PNG)");
     });
 });
+$("#shareBtn").on("click", async function () {
+    try {
+        const canvas = await html2canvas(document.getElementById("board"), {
+            useCORS: true,
+            scale: 2,
+            backgroundColor: null,
+        });
+
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], "mapstats.png", {
+                type: "image/png",
+            });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file] });
+            } else {
+                showStatus("Ваш браузер не поддерживает Share API.", "error");
+            }
+        });
+    } catch (e) {
+        showStatus("Ошибка при попытке поделиться: " + e.message, "error");
+    }
+});
+$("#closeModalBtn").on("click", () => $("#teamModal").hide());
 
 </script>
-</body>
+    </body>
 </html>
