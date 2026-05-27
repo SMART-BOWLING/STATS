@@ -103,6 +103,12 @@ body {
     text-align: right;
     max-width: 160px;
 }
+#tournamentInput {
+    max-width: 300px;
+}
+#dayInput {
+    max-width: 100px;
+}
 .row-label select {
     direction: rtl;
 }
@@ -405,7 +411,16 @@ tbody .team-cell .team-logo-img {
             <div class="controls">
                 <label class="row-label">
                     <span>День №</span>
-                    <input type="number" id="dayInput" value="1" />
+                    <input
+                        type="number"
+                        id="dayInput"
+                        list="daysList"
+                        min="1"
+                        max="100"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                    />
+                    <datalist id="daysList"></datalist>
                 </label>
                 <label class="row-label">
                     <span>Турнир</span>
@@ -433,9 +448,21 @@ tbody .team-cell .team-logo-img {
                 <label class="row-label">
                     <span>Счёт</span>
                     <div class="input-group score-group">
-                        <input type="number" id="score1Input" />
+                        <input
+                            type="number"
+                            id="score1Input"
+                            min="0"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                        />
                         <span style="color: #8e8e93; font-weight: bold">:</span>
-                        <input type="number" id="score2Input" />
+                        <input
+                            type="number"
+                            id="score2Input"
+                            min="0"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                        />
                     </div>
                 </label>
                 <label class="row-label">
@@ -591,6 +618,9 @@ let currentParse = null;
 
 // --- 2. CORE INITIALIZATION ---
 $(document).ready(async function () {
+    for (let inx = 1; inx <= 100; inx++) {
+        $("#daysList").append(`<option value="${inx}"></option>`);
+    }
     await loadAllSheets();
     handleUpdate();
 });
@@ -834,11 +864,17 @@ async function enforceTeamModal(teamName) {
 
 $("#saveDbBtn").on("click", async function () {
     if (!currentParse) return;
+
+    const $btn = $(this);
+    const originalText = $btn.text();
+    $btn.text("Сохранение...").prop("disabled", true);
+
     const tName = $("#tournamentInput").val(),
         sheetName = `Результати ${tName}`,
         day = $("#dayInput").val(),
         map = $("#mapInput").val(),
         ts = new Date().toISOString();
+
     try {
         await apiCall({
             operation: "CREATE_TABLE",
@@ -863,6 +899,7 @@ $("#saveDbBtn").on("click", async function () {
             ],
         });
     } catch (e) {}
+
     const rows = [];
     currentParse.team1Players.forEach((p) =>
         rows.push([
@@ -904,8 +941,21 @@ $("#saveDbBtn").on("click", async function () {
             ts,
         ]),
     );
-    await apiCall({ operation: "INSERT", sheetName: sheetName, rows: rows });
-    showStatus("Сохранено!", "success");
+
+    try {
+        await apiCall({
+            operation: "INSERT",
+            sheetName: sheetName,
+            rows: rows,
+        });
+        $btn.text("Сохранено!");
+    } catch (e) {
+        $btn.text("Ошибка");
+    } finally {
+        setTimeout(() => {
+            $btn.text(originalText).prop("disabled", false);
+        }, 1500);
+    }
 });
 
 async function apiCall(payload) {
