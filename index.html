@@ -302,24 +302,14 @@ tbody .team-cell .team-logo-img {
     border: 1px solid #bee5eb;
 }
 
-/* #downloadBtn { */
-/*     display: none; */
-/* } */
-/**/
-/* @media (min-width: 1100px) { */
-/*     .app-container { */
-/*         flex-direction: row; */
-/*         align-items: flex-start; */
-/*         justify-content: center; */
-/*         gap: 40px; */
-/*     } */
-/*     #downloadBtn { */
-/*         display: block; */
-/*     } */
-/*     #shareBtn { */
-/*         display: none; */
-/*     } */
-/* } */
+@media (min-width: 1100px) {
+    .app-container {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 40px;
+    }
+}
 
 </style>
         <style>
@@ -411,16 +401,17 @@ tbody .team-cell .team-logo-img {
             <div class="controls">
                 <label class="row-label">
                     <span>День №</span>
-                    <input
-                        type="number"
-                        id="dayInput"
-                        list="daysList"
-                        min="1"
-                        max="100"
-                        inputmode="numeric"
-                        pattern="[0-9]*"
-                    />
-                    <datalist id="daysList"></datalist>
+                    <!-- <input -->
+                    <!--     type="number" -->
+                    <!--     id="dayInput" -->
+                    <!--     list="daysList" -->
+                    <!--     min="1" -->
+                    <!--     max="100" -->
+                    <!--     inputmode="numeric" -->
+                    <!--     pattern="[0-9]*" -->
+                    <!-- /> -->
+                    <!-- <datalist id="daysList"></datalist> -->
+                    <select id="dayInput"></select>
                 </label>
                 <label class="row-label">
                     <span>Турнир</span>
@@ -618,8 +609,8 @@ let currentParse = null;
 
 // --- 2. CORE INITIALIZATION ---
 $(document).ready(async function () {
-    for (let inx = 1; inx <= 100; inx++) {
-        $("#daysList").append(`<option value="${inx}"></option>`);
+    for (let idx = 1; idx <= 30; idx++) {
+        $("#dayInput").append(`<option value="${idx}">${idx}</option>`);
     }
     await loadAllSheets();
     handleUpdate();
