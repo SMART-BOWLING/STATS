@@ -632,6 +632,8 @@ async function loadAllSheets() {
         };
         $("#tournamentList").html("");
         $("#tournamentInput")[0].value = tables.LOGOS.at(-1)[0];
+        $("#logoRightInput")[0].value = tables.LOGOS.at(-1)[1];
+
         tables.LOGOS.reverse().forEach((r) => {
             if (r[0] !== "CSPORTS_LOGO")
                 $("#tournamentList").append(
@@ -1011,3 +1013,4 @@ $("#closeModalBtn").on("click", () => $("#teamModal").hide());
 </script>
     </body>
 </html>
+
