@@ -88,7 +88,6 @@ button:disabled{opacity:0.6;transform:none;}
             </div>
         </div>
         
-        <!-- Фильтрация -->
         <div class="filter-section">
             <div class="filter-group">
                 <select id="statusFilter">
@@ -114,9 +113,7 @@ button:disabled{opacity:0.6;transform:none;}
 </div>
 
 <script>
-// ==================== КОНФИГУРАЦИЯ ====================
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0RzP7Pp_XQ5h3KibStxSuZ55QnS9s-QvsTST_gQiaQYGSvLQYnpuKcI35XRcvbsxwYg/exec';
-
 const AUTH_SPREADSHEET_ID = '1v-R394u6sKzSdvmkh9qsbqhfkNZEi5lIXwo8BdT_lhQ';
 const AUTH_SHEET_NAME = 'PARTS ORDER';
 const AUTH_API_KEY = 'AIzaSyAXL0Hsfxy-g-AgYhnivj4x9gCB2rrtF-0';
@@ -124,20 +121,15 @@ const AUTH_API_KEY = 'AIzaSyAXL0Hsfxy-g-AgYhnivj4x9gCB2rrtF-0';
 let currentUser = null;
 let currentUserNameFromSheet = null;
 let allOrders = [];
-let isLoading = false;
-let isInitialDataLoaded = false;   // Флаг того, что фоновый запрос уже завершен или активен
 
-// Функция для форматирования даты
 function formatDateTime(date) {
     if (!date || !(date instanceof Date) || isNaN(date)) return '—';
-    
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
-    
     return `${day}.${month}.${year}, ${hours}:${minutes}:${seconds}`;
 }
 
@@ -202,72 +194,35 @@ function applyFilters() {
     renderOrders(filteredOrders);
 }
 
-// ФУНКЦИЯ ЗАГРУЗКИ В ТИХУЮ (не показывает спиннер, если не запрошено forceShowLoading)
-// Возвращает promise, но не обновляет интерфейс принудительно (кроме конечного применения фильтров)
-// Используется для фоновой загрузки
-async function loadOrdersSilently() {
-    if (isLoading) return allOrders;
-    isLoading = true;
-    
+// Загрузка данных (только один раз при входе)
+async function loadOrdersOnce() {
     try {
         const orders = await callScriptAsync('getOrders');
-        if (orders && orders.error) throw new Error(orders.error);
-        allOrders = Array.isArray(orders) ? orders : [];
-        
-        // Тихо применяем фильтры и обновляем отображение, но без всплывающих уведомлений и без изменения UI лоадера
-        if (document.getElementById('ordersList')) {
+        if (orders && !orders.error) {
+            allOrders = Array.isArray(orders) ? orders : [];
             applyFilters();
+            showToast(`✅ Загружено ${allOrders.length} заказов`, false);
         }
-        
-        isInitialDataLoaded = true;
-        return allOrders;
     } catch(err) {
-        console.error('Тихая загрузка ошибка:', err);
-        // При тихой загрузке не показываем тост об ошибке, чтобы не раздражать при перезагрузке, но для отладки можем сохранить
-        if (document.getElementById('ordersList') && allOrders.length === 0) {
-            // Если данные не загрузились и список пуст — покажем ошибку деликатно
-            const container = document.getElementById('ordersList');
-            if (container && container.innerHTML.includes('loading-spinner') === false && container.children.length === 0) {
-                container.innerHTML = `<div class="empty-state">⚠️ Не удалось загрузить данные. Нажмите "Обновить данные".</div>`;
-            }
+        console.error('Ошибка загрузки:', err);
+        const container = document.getElementById('ordersList');
+        if (container) {
+            container.innerHTML = `<div class="empty-state">⚠️ Ошибка: ${err.message}<br><br><button onclick="location.reload()" style="margin-top:15px;width:auto;padding:8px 20px;">Обновить страницу</button></div>`;
         }
-        return [];
-    } finally {
-        isLoading = false;
+        showToast(`❌ Ошибка загрузки`, true);
     }
 }
 
-// Публичная загрузка с индикацией (принудительное обновление)
-// При нажатии на "Обновить данные" данные уже должны быть подгружены тихо, поэтому рендер произойдет мгновенно из кэша allOrders,
-// а если по какой-то причине их нет — то тогда выполнится повторный запрос и отобразится спиннер.
-async function manualRefresh() {
-    // Если данные уже загружены (allOrders не пуст или хотя бы флаг isInitialDataLoaded), показываем их мгновенно
-    if (allOrders.length > 0 || isInitialDataLoaded) {
-        // Мгновенно применяем фильтры и показываем данные без лишнего запроса.
-        // Но чтобы быть уверенным, что данные актуальны, выполняем фоновый запрос без индикации,
-        // но при этом интерфейс не моргает. Запрос пойдет в фоне, а пользователь уже видит текущие данные.
-        applyFilters();  // сразу показываем то, что есть в кэше
-        showToast(`🔄 Отображаются текущие данные (${allOrders.length} заказов), обновление в фоне...`, false);
-        
-        // Выполняем "тихую" перезагрузку данных, чтобы обновить кэш
-        try {
-            const freshOrders = await callScriptAsync('getOrders');
-            if (freshOrders && !freshOrders.error) {
-                allOrders = Array.isArray(freshOrders) ? freshOrders : [];
-                applyFilters();
-                showToast(`✅ Данные обновлены: ${allOrders.length} заказов`, false);
-            } else {
-                throw new Error('Пустой ответ');
-            }
-        } catch(err) {
-            console.error('Фоновое обновление не удалось', err);
-            showToast(`⚠️ Не удалось обновить, показаны кэшированные данные`, true);
-        }
-        return;
+// КНОПКА ОБНОВИТЬ - МГНОВЕННО ПОКАЗЫВАЕТ ТО, ЧТО УЖЕ ЕСТЬ
+// НИКАКИХ ЗАПРОСОВ, НИКАКИХ СПИННЕРОВ!
+function manualRefresh() {
+    if (allOrders.length > 0) {
+        // Просто обновляем отображение из уже загруженных данных
+        applyFilters();
+        showToast(`📋 Показано ${allOrders.length} заказов (мгновенно)`, false);
+    } else {
+        showToast(`📭 Нет загруженных данных, подождите...`, false);
     }
-    
-    // Если же данных ещё нет ни разу (крайний случай, например ошибка на старте) — выполняем обычную загрузку с индикатором
-    await loadOrders(true);
 }
 
 async function saveOrder() {
@@ -286,12 +241,8 @@ async function saveOrder() {
     
     try {
         const now = new Date();
-        
         const result = await callScriptAsync('addOrder', { 
-            partNumber, 
-            quantity, 
-            club,
-            timestamp: now.toISOString()
+            partNumber, quantity, club, timestamp: now.toISOString()
         });
         
         if (result && result.error) throw new Error(result.error);
@@ -302,17 +253,8 @@ async function saveOrder() {
         document.getElementById('quantity').value = '1';
         document.getElementById('clubSelect').value = '';
         
-        // После сохранения — подгружаем новые данные (тихо, без полной перезагрузки интерфейса со спиннером)
-        try {
-            const updatedOrders = await callScriptAsync('getOrders');
-            if (updatedOrders && !updatedOrders.error) {
-                allOrders = Array.isArray(updatedOrders) ? updatedOrders : [];
-                applyFilters();
-            }
-        } catch(refErr) {
-            // Если тихо не вышло, пробуем принудительную загрузку с индикатором?
-            await loadOrders(false);
-        }
+        // Перезагружаем данные после сохранения
+        await loadOrdersOnce();
         
     } catch(err) {
         showToast(`❌ Ошибка: ${err.message}`, true);
@@ -337,9 +279,7 @@ async function updateStatus(row, newStatus, selectElement) {
         if (orderIndex !== -1) {
             allOrders[orderIndex].status = newStatus;
         }
-        
         applyFilters();
-        
         showToast(`✅ Статус изменён на "${newStatus}"`);
     } catch(err) {
         showToast(`❌ Ошибка: ${err.message}`, true);
@@ -367,9 +307,7 @@ async function deleteOrder(row, cardElement) {
         if (orderIndex !== -1) {
             allOrders.splice(orderIndex, 1);
         }
-        
         applyFilters();
-        
         showToast('🗑 Заказ удалён');
     } catch(err) {
         showToast(`Ошибка: ${err.message}`, true);
@@ -406,14 +344,11 @@ function renderOrders(orders) {
             try {
                 const date = new Date(order.timestamp);
                 dateStr = formatDateTime(date);
-            } catch(e) {
-                dateStr = '—';
-            }
+            } catch(e) { dateStr = '—'; }
         }
         
         const table = document.createElement('table'); 
         table.className = 'order-table';
-        
         const currentStatus = order.status || 'Активно';
         
         const rows = [
@@ -425,18 +360,14 @@ function renderOrders(orders) {
         
         rows.forEach(r => {
             const tr = document.createElement('tr');
-            const tdL = document.createElement('td'); 
-            tdL.textContent = r.label;
-            const tdV = document.createElement('td');
-            tdV.textContent = r.value;
-            tr.appendChild(tdL); 
-            tr.appendChild(tdV);
+            const tdL = document.createElement('td'); tdL.textContent = r.label;
+            const tdV = document.createElement('td'); tdV.textContent = r.value;
+            tr.appendChild(tdL); tr.appendChild(tdV);
             table.appendChild(tr);
         });
         
         const statusTr = document.createElement('tr');
-        const statusTdL = document.createElement('td');
-        statusTdL.textContent = 'Статус';
+        const statusTdL = document.createElement('td'); statusTdL.textContent = 'Статус';
         const statusTdV = document.createElement('td');
         
         const select = document.createElement('select');
@@ -467,16 +398,6 @@ function renderOrders(orders) {
         card.appendChild(actionDiv);
         container.appendChild(card);
     });
-}
-
-function escapeHtml(str) { 
-    if(!str) return ''; 
-    return String(str).replace(/[&<>]/g, function(m){
-        if(m==='&') return '&amp;'; 
-        if(m==='<') return '&lt;'; 
-        if(m==='>') return '&gt;'; 
-        return m;
-    }); 
 }
 
 // ========== АВТОРИЗАЦИЯ ==========
@@ -566,19 +487,14 @@ async function loginUser(user) {
     localStorage.setItem('userName', user.name);
     localStorage.setItem('userPic', user.picture);
     
-    // ПОСЛЕ ВХОДА - ЗАГРУЖАЕМ ДАННЫЕ ТИХО (без спиннера на основном блоке)
-    const ordersContainer = document.getElementById('ordersList');
-    if (ordersContainer) {
-        ordersContainer.innerHTML = '<div class="empty-state"><div class="loading-spinner"></div><br>Тихая загрузка данных...</div>';
+    // Показываем индикатор загрузки ТОЛЬКО при первом входе
+    const container = document.getElementById('ordersList');
+    if (container) {
+        container.innerHTML = '<div class="empty-state"><div class="loading-spinner"></div><br>Загрузка данных...</div>';
     }
-    // Фоновый запрос без всплывающих тостов
-    try {
-        await loadOrdersSilently();
-    } catch(err) {
-        if (ordersContainer) {
-            ordersContainer.innerHTML = '<div class="empty-state">⚠️ Ошибка загрузки. Нажмите "Обновить данные".</div>';
-        }
-    }
+    
+    // Загружаем данные один раз
+    await loadOrdersOnce();
 }
 
 function parseJwt(token) {
@@ -586,9 +502,7 @@ function parseJwt(token) {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g,'+').replace(/_/g,'/');
         return JSON.parse(decodeURIComponent(atob(base64).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join('')));
-    } catch(e){ 
-        return {}; 
-    }
+    } catch(e){ return {}; }
 }
 
 function signOut() { 
@@ -602,10 +516,10 @@ window.updateStatus = updateStatus;
 window.deleteOrder = deleteOrder;
 window.signOut = signOut;
 window.handleCredentialResponse = handleCredentialResponse;
-window.loadOrders = loadOrdersSilently;
 window.applyFilters = applyFilters;
 window.manualRefresh = manualRefresh;
 
+// ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
 window.addEventListener('load', async () => {
     const logged = localStorage.getItem('userLoggedIn') === 'true';
     const savedEmail = localStorage.getItem('userEmail');
@@ -642,19 +556,18 @@ window.addEventListener('load', async () => {
             }
             
             if (hasAccess) {
-                // ТИХАЯ ЗАГРУЗКА при перезагрузке
                 const container = document.getElementById('ordersList');
                 if (container) {
                     container.innerHTML = '<div class="empty-state"><div class="loading-spinner"></div><br>Загрузка данных...</div>';
                 }
-                await loadOrdersSilently();
+                await loadOrdersOnce();
             } else {
                 showToast('❌ Нет доступа к таблице', true);
                 document.getElementById('ordersList').innerHTML = '<div class="empty-state">⛔ Нет доступа к таблице</div>';
             }
         } catch(err) {
             console.error('Ошибка инициализации:', err);
-            document.getElementById('ordersList').innerHTML = `<div class="empty-state">⚠️ Ошибка подключения: ${err.message}<br><br><button onclick="manualRefresh()" style="margin-top:15px;width:auto;padding:8px 20px;"><i class="fas fa-sync-alt"></i> Попробовать снова</button></div>`;
+            document.getElementById('ordersList').innerHTML = `<div class="empty-state">⚠️ Ошибка: ${err.message}<br><br><button onclick="location.reload()" style="margin-top:15px;width:auto;padding:8px 20px;">Обновить страницу</button></div>`;
         }
     } else {
         document.getElementById('login-section').style.display = 'flex';
