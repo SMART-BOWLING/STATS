@@ -1,597 +1,1015 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Блокнот заказов запчастей</title>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://apis.google.com/js/api.js"></script>
-<style>
-*{box-sizing:border-box;}
-body{margin:0;padding:16px;font-family:system-ui, -apple-system, 'Segoe UI', Roboto, Arial;background:#f4f6fa;color:#111827;}
-.wrapper{max-width:800px;margin:0 auto;}
-.form-card{background:white;border-radius:28px;padding:20px 18px;margin-bottom:28px;border:1px solid #eef2f6;box-shadow:0 2px 8px rgba(0,0,0,0.02);}
-.form-title{font-weight:600;font-size:18px;margin-bottom:16px;color:#0f172a;display:flex;align-items:center;gap:8px;border-left:4px solid #1e2f3f;padding-left:12px;}
-input,select,button{width:100%;padding:14px 16px;margin-bottom:16px;border:1px solid #e2e8f0;border-radius:20px;font-size:15px;background:#fff;}
-input:focus,select:focus{outline:none;border-color:#7c8ea0;box-shadow:0 0 0 3px rgba(28,45,65,0.08);}
-button{background:#1e2f3f;color:white;font-weight:600;border:none;cursor:pointer;margin-bottom:0;transition:0.2s;}
-button:active{transform:scale(0.98);}
-button:disabled{opacity:0.6;transform:none;}
-.save-btn{background:#1e2f3f;margin-top:8px;}
-.card{background:#ffffff;border-radius:24px;box-shadow:0 4px 12px rgba(0,0,0,0.03);margin-bottom:16px;overflow:hidden;border:1px solid #eef2f6;transition:opacity 0.3s;}
-.order-table{width:100%;border-collapse:collapse;}
-.order-table tr{border-bottom:1px solid #f0f2f5;}
-.order-table tr:last-child{border-bottom:none;}
-.order-table td{padding:14px 16px;font-size:14px;vertical-align:top;}
-.order-table td:first-child{font-weight:500;color:#2c3e4e;width:38%;background:#fefefe;}
-.order-table td:last-child{color:#1f2a3e;text-align:right;word-break:break-word;}
-.status-select{padding:6px 12px;border-radius:20px;border:1px solid #e2e8f0;background:white;font-size:13px;font-weight:500;cursor:pointer;width:auto;margin:0;}
-.status-select.status-pending{color:#c2410c;border-color:#fed7aa;background:#fff7ed;}
-.status-select.status-delivered{color:#1e2f3f;border-color:#d1dbe8;background:#f8fafc;}
-.action-bar{display:flex;gap:12px;padding:12px 16px 18px;background:white;border-top:1px solid #edf2f7;justify-content:space-between;}
-.action-btn{flex:1;padding:10px 12px;border-radius:40px;font-size:14px;font-weight:500;text-align:center;cursor:pointer;border:none;}
-.delete-btn{background:#fff1f0;color:#b91c1c;border:1px solid #ffdedc;width:100%;}
-.empty-state{text-align:center;padding:48px 20px;background:white;border-radius:28px;color:#6c7a8e;border:1px solid #eef2f6;}
-#login-section{display:flex;justify-content:center;align-items:center;min-height:500px;}
-#login-container{background:white;padding:40px 28px;border-radius:40px;text-align:center;max-width:400px;width:100%;border:1px solid #eef2f6;}
-#user-info{display:none;align-items:center;justify-content:space-between;background:white;padding:10px 20px;border-radius:60px;margin-bottom:24px;border:1px solid #eef2f6;}
-.user-details{display:flex;align-items:center;gap:12px;}
-#user-pic{width:42px;height:42px;border-radius:50%;object-fit:cover;}
-#logout-btn{width:auto;background:#f1f5f9;color:#1f2a3e;padding:8px 18px;border-radius:40px;margin:0;}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e2f3f;color:white;padding:10px 24px;border-radius:60px;font-size:14px;z-index:1000;animation:fadeUp 0.25s ease;}
-@keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(12px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
-.loading-spinner{display:inline-block;width:36px;height:36px;border:3px solid #e2e8f0;border-radius:50%;border-top-color:#1e2f3f;animation:spin 0.7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.filter-section{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
-.filter-group{flex:1;min-width:150px;}
-.filter-group select{width:100%;padding:10px 12px;border-radius:20px;font-size:14px;background:#fff;cursor:pointer;}
-.search-box{width:100%;padding:12px 16px;border-radius:30px;border:1px solid #e2e8f0;font-size:14px;margin-bottom:16px;}
-.refresh-btn-under{background:#4a5b6e;color:white;padding:14px 16px;border-radius:20px;font-size:15px;font-weight:600;cursor:pointer;border:none;width:100%;margin-top:0;}
-.refresh-btn-under:hover{background:#2c3e4e;}
-.button-group{display:flex;flex-direction:column;gap:10px;margin-top:8px;}
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=550, user-scalable=no" />
+        <title>HLTV Mapstats</title>
+        <style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+}
+html {
+    width: max(550px, 100%);
+}
+body {
+    background: #f2f2f7;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+        sans-serif;
+    padding: 20px 16px;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+.app-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1100px;
+    align-items: center;
+    gap: 24px;
+}
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 521px;
+    min-width: 521px;
+    width: 100%;
+}
+.row-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1c1c1e;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+.col-label {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1c1c1e;
+    gap: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+.controls span {
+    white-space: nowrap;
+}
+.controls input,
+.controls select,
+.controls textarea {
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    background: #f2f2f7;
+    color: #1c1c1e;
+    outline: none;
+    transition: background 0.2s;
+}
+.controls input:focus,
+.controls select:focus,
+.controls textarea:focus {
+    background: #e5e5ea;
+}
+.controls textarea {
+    height: 120px;
+    resize: vertical;
+    width: 100%;
+}
+.input-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+    flex-grow: 1;
+    margin-left: 16px;
+}
+.row-label input,
+.row-label select {
+    text-align: right;
+    max-width: 160px;
+}
+#tournamentInput {
+    max-width: 300px;
+}
+#dayInput {
+    max-width: 100px;
+}
+.row-label select {
+    direction: rtl;
+}
+.score-group input {
+    width: 60px;
+    text-align: center;
+}
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+.btn-group {
+    display: flex;
+    gap: 8px;
+}
+.primary-btn,
+.secondary-btn {
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    border-radius: 12px;
+    transition:
+        opacity 0.2s ease,
+        transform 0.1s ease;
+    width: 100%;
+}
+.primary-btn {
+    background: #1a2b3c;
+    color: #ffffff;
+}
+.secondary-btn {
+    background: #e5e5ea;
+    color: #1a2b3c;
+}
+.primary-btn:active,
+.secondary-btn:active {
+    transform: scale(0.98);
+}
+.icon-btn {
+    padding: 8px 10px;
+    font-size: 18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+}
+.icon-btn:hover {
+    background: #e5e5ea;
+}
+.board {
+    position: relative;
+    width: 521px;
+    max-width: 521px;
+    background: linear-gradient(to bottom, #f0f4f8, #dce3ea);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+.map-overlay {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    pointer-events: none;
+}
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+}
+.logo {
+    max-width: 36px;
+    max-height: 36px;
+}
+.team-logo-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    margin-right: 6px;
+}
+.tournament-name {
+    font-size: 21px;
+    font-weight: bold;
+    text-align: center;
+    flex-grow: 1;
+    margin: 0 8px;
+    word-break: break-word;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+thead {
+    background: linear-gradient(to right, #1a2f40, #dc143c);
+    color: #fff;
+}
+th,
+td {
+    border-bottom: 1px solid #ccd3dc;
+    padding: 8px;
+    text-align: center;
+    font-size: 15px;
+    white-space: nowrap;
+}
+th.team-name,
+td.team-name {
+    text-align: left;
+}
+col.score {
+    width: 10%;
+}
+col.team {
+    width: 26%;
+}
+col.stat {
+    width: 7%;
+}
+col.stat.kast {
+    width: 15%;
+}
+col.stat.adr {
+    width: 10%;
+}
+col.rating {
+    width: 19%;
+}
+td.rating-low {
+    color: #c0392b;
+}
+td.rating-high {
+    color: #27ae60;
+}
+.map-name {
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 18px;
+}
+.current-score {
+    background-color: #1a2f40;
+    color: #fff;
+    font-weight: bold;
+}
+.team-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+tbody .team-cell {
+    transform: translateX(12px);
+}
+thead .team-cell {
+    transform: translateX(-12px);
+}
+tbody .team-cell .team-logo-img {
+    display: none;
+}
+.status {
+    max-width: 500px;
+    margin: 10px auto;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: center;
+    display: none;
+}
+.status.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.status.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+.status.info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+@media (min-width: 1100px) {
+    .app-container {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 40px;
+    }
+}
+
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-<div class="wrapper">
-    <div id="login-section">
-        <div id="login-container">
-            <div class="login-icon"><i class="fas fa-clipboard-list" style="font-size:40px;color:#1e2f3f;"></i></div>
-            <h2>ЗАПЧАСТИ</h2>
-            <p style="color:#4b5565;">Учёт заказов для боулинг-клубов</p>
-            <div id="g_id_onload" data-client_id="328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_prompt="false"></div>
-            <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signin_with" data-size="large"></div>
-        </div>
-    </div>
-    <div id="user-info">
-        <div class="user-details">
-            <img id="user-pic" src="">
-            <div><div id="user-name" style="font-weight:600;"></div><div id="user-email" style="font-size:12px;color:#5b6b82;"></div></div>
-        </div>
-        <button id="logout-btn" onclick="signOut()">Выйти</button>
-    </div>
-    <div id="main-content" style="display:none;">
-        <div class="form-card">
-            <div class="form-title"><i class="fas fa-pen-alt"></i> Новый заказ запчастей</div>
-            <select id="clubSelect">
-                <option value="" disabled selected>— Выберите боулинг-клуб —</option>
-                <option value="BLOCKBUSTER">🎳 BLOCKBUSTER</option>
-                <option value="SKYMALL">🎳 SKYMALL</option>
-                <option value="LUCKY STRIKE KH">🎳 LUCKY STRIKE KH</option>
-            </select>
-            <input type="text" id="partNumber" placeholder="Номер детали (например: 7890-A)" autocomplete="off">
-            <input type="number" id="quantity" placeholder="Количество" min="1" value="1">
-            
-            <div class="button-group">
-                <button id="saveOrderBtn" class="save-btn" onclick="saveOrder()"><i class="fas fa-save"></i> Сохранить заказ</button>
-                <button class="refresh-btn-under" onclick="manualRefresh()"><i class="fas fa-sync-alt"></i> Обновить данные</button>
-            </div>
-        </div>
-        
-        <div class="filter-section">
-            <div class="filter-group">
-                <select id="statusFilter">
-                    <option value="all">📋 Все заказы</option>
-                    <option value="active">🟠 Активные</option>
-                    <option value="delivered">✅ Доставленные</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <select id="clubFilter">
-                    <option value="all">🎳 Все клубы</option>
-                    <option value="BLOCKBUSTER">🎳 BLOCKBUSTER</option>
-                    <option value="SKYMALL">🎳 SKYMALL</option>
-                    <option value="LUCKY STRIKE KH">🎳 LUCKY STRIKE KH</option>
-                </select>
-            </div>
-        </div>
-        
-        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Поиск по номеру детали или клубу..." onkeyup="applyFilters()">
-        
-        <div id="ordersList"></div>
-    </div>
-</div>
-
-<script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0RzP7Pp_XQ5h3KibStxSuZ55QnS9s-QvsTST_gQiaQYGSvLQYnpuKcI35XRcvbsxwYg/exec';
-const AUTH_SPREADSHEET_ID = '1v-R394u6sKzSdvmkh9qsbqhfkNZEi5lIXwo8BdT_lhQ';
-const AUTH_SHEET_NAME = 'PARTS ORDER';
-const AUTH_API_KEY = 'AIzaSyAXL0Hsfxy-g-AgYhnivj4x9gCB2rrtF-0';
-
-let currentUser = null;
-let currentUserNameFromSheet = null;
-let allOrders = [];
-
-function formatDateTime(date) {
-    if (!date || !(date instanceof Date) || isNaN(date)) return '—';
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    return `${day}.${month}.${year}, ${hours}:${minutes}:${seconds}`;
+        <style>
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
 }
 
-function showToast(msg, isError) {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = msg;
-    toast.style.background = isError ? '#c2410c' : '#1e2f3f';
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2800);
+.modal-content {
+    background: #f2f2f7;
+    padding: 24px;
+    border-radius: 16px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    position: relative;
 }
 
-function callScriptAsync(functionName, data) {
-    return new Promise((resolve, reject) => {
-        const callbackName = 'cb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
-        window[callbackName] = function(response) {
-            delete window[callbackName];
-            if (response && response.error) reject(new Error(response.error));
-            else resolve(response && response.result ? response.result : response);
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 28px;
+    color: #8e8e93;
+    cursor: pointer;
+    line-height: 1;
+    user-select: none;
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: #1c1c1e;
+}
+
+.modal-title {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.modal-team-name {
+    color: #007aff;
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.modal-label {
+    box-shadow: none !important;
+    margin: 0 !important;
+}
+
+.modal-label-text {
+    font-size: 14px;
+    color: #666;
+}
+
+.modal-input {
+    text-align: left !important;
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+.modal-submit {
+    margin-top: 8px;
+}
+
+</style>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    </head>
+    <body>
+        <div id="statusMessage" class="status"></div>
+        <div class="app-container">
+            <div class="controls">
+                <label class="row-label">
+                    <span>День №</span>
+                    <!-- <input -->
+                    <!--     type="number" -->
+                    <!--     id="dayInput" -->
+                    <!--     list="daysList" -->
+                    <!--     min="1" -->
+                    <!--     max="100" -->
+                    <!--     inputmode="numeric" -->
+                    <!--     pattern="[0-9]*" -->
+                    <!-- /> -->
+                    <!-- <datalist id="daysList"></datalist> -->
+                    <select id="dayInput"></select>
+                </label>
+                <label class="row-label">
+                    <span>Турнир</span>
+                    <input
+                        type="text"
+                        id="tournamentInput"
+                        list="tournamentList"
+                        placeholder="Выбрать или ввести..."
+                    />
+                    <datalist id="tournamentList"></datalist>
+                </label>
+                <label class="row-label">
+                    <span>Лого турнира (URL)</span>
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            id="logoRightInput"
+                            placeholder="https://..."
+                        />
+                        <button id="saveTournamentBtn" class="icon-btn">
+                            ↓
+                        </button>
+                    </div>
+                </label>
+                <label class="row-label">
+                    <span>Счёт</span>
+                    <div class="input-group score-group">
+                        <input
+                            type="number"
+                            id="score1Input"
+                            min="0"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                        />
+                        <span style="color: #8e8e93; font-weight: bold">:</span>
+                        <input
+                            type="number"
+                            id="score2Input"
+                            min="0"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                        />
+                    </div>
+                </label>
+                <label class="row-label">
+                    <span>Карта</span>
+                    <select id="mapInput"></select>
+                </label>
+                <label class="col-label">
+                    <span>Данные команд</span>
+                    <textarea
+                        id="inputData"
+                        placeholder="Вставьте статистику..."
+                    ></textarea>
+                </label>
+
+                <div class="action-buttons">
+                    <button id="updateBtn" class="primary-btn">
+                        Обновить статистику
+                    </button>
+                    <button id="reloadAllBtn" class="secondary-btn">
+                        Перезагрузить данные
+                    </button>
+                    <button id="saveDbBtn" class="primary-btn">
+                        Сохранить в таблицу
+                    </button>
+                    <div class="btn-group">
+                        <button id="downloadBtn" class="secondary-btn">
+                            Скачать (PNG)
+                        </button>
+                        <button id="shareBtn" class="secondary-btn">
+                            Поделиться
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="board" id="board">
+                <div class="map-overlay" id="mapOverlay"></div>
+                <div class="header">
+                    <img
+                        id="logoLeft"
+                        class="logo"
+                        src=""
+                        crossorigin="anonymous"
+                        alt="Logo Left"
+                    />
+                    <h1 id="tournamentName" class="tournament-name"></h1>
+                    <img
+                        id="logoRight"
+                        class="logo"
+                        src=""
+                        crossorigin="anonymous"
+                        alt="Logo Right"
+                    />
+                </div>
+                <table>
+                    <colgroup>
+                        <col class="score" />
+                        <col class="team" />
+                        <col class="stat" />
+                        <col class="stat" />
+                        <col class="stat" />
+                        <col class="stat adr" />
+                        <col class="stat kast" />
+                        <col class="rating" />
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th id="score1" class="current-score">0</th>
+                            <th id="team1Header" class="team-name">Team1</th>
+                            <th>K</th>
+                            <th>A</th>
+                            <th>D</th>
+                            <th>ADR</th>
+                            <th>KAST</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody id="team1Body"></tbody>
+                </table>
+                <table>
+                    <colgroup>
+                        <col class="score" />
+                        <col class="team" />
+                        <col class="stat" />
+                        <col class="stat" />
+                        <col class="stat" />
+                        <col class="stat adr" />
+                        <col class="stat kast" />
+                        <col class="rating" />
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th id="score2" class="current-score">0</th>
+                            <th id="team2Header" class="team-name">Team2</th>
+                            <th>K</th>
+                            <th>A</th>
+                            <th>D</th>
+                            <th>ADR</th>
+                            <th>KAST</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody id="team2Body"></tbody>
+                </table>
+                <div id="mapName" class="map-name"></div>
+            </div>
+        </div>
+
+        <div id="teamModal" class="modal-overlay">
+            <div class="modal-content">
+                <span class="modal-close" id="closeModalBtn">&times;</span>
+                <h3 class="modal-title">
+                    Новая команда:<br /><span
+                        id="modalTeamNameLabel"
+                        class="modal-team-name"
+                    ></span>
+                </h3>
+                <input type="hidden" id="modalFullTeamName" />
+
+                <div class="modal-form">
+                    <label class="col-label modal-label">
+                        <span class="modal-label-text">Короткое имя:</span>
+                        <input
+                            type="text"
+                            id="modalShortName"
+                            class="modal-input"
+                        />
+                    </label>
+
+                    <label class="col-label modal-label">
+                        <span class="modal-label-text">URL Логотипа:</span>
+                        <input
+                            type="text"
+                            id="modalTeamLogo"
+                            class="modal-input"
+                        />
+                    </label>
+
+                    <button id="saveTeamBtn" class="primary-btn modal-submit">
+                        Сохранить команду
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+// --- 1. CONFIGURATION & STATE ---
+const API_URL =
+    "https://script.google.com/macros/s/AKfycby47B5_u7CLZCiE2H__19zmCvZ6riW61m3cdkv15dCLSCqySl3u7XgVEkUjvYybMQji/exec";
+const SHEET_ID = "188jMHUJs1KkmCAzG7XZYTnTY9SnNIx0JlXJoEdMTees";
+let tables = { LOGOS: [], MAPS: [], TEAMS: [] };
+let currentParse = null;
+
+// --- 2. CORE INITIALIZATION ---
+$(document).ready(async function () {
+    for (let idx = 1; idx <= 30; idx++) {
+        $("#dayInput").append(`<option value="${idx}">${idx}</option>`);
+    }
+    await loadAllSheets();
+    handleUpdate();
+});
+
+async function loadAllSheets() {
+    showStatus("Загрузка баз данных...", "info");
+    try {
+        const [logos, maps, teams] = await Promise.all([
+            apiCall({ operation: "SELECT", sheetName: "LOGOS" }),
+            apiCall({ operation: "SELECT", sheetName: "MAPS" }),
+            apiCall({ operation: "SELECT", sheetName: "TEAMS" }),
+        ]);
+
+        tables = {
+            LOGOS: logos.data.slice(1) || [],
+            MAPS: maps.data.slice(1) || [],
+            TEAMS: teams.data.slice(1) || [],
         };
-        const params = new URLSearchParams();
-        params.append('fn', functionName);
-        if (data) params.append('data', JSON.stringify(data));
-        params.append('callback', callbackName);
-        const script = document.createElement('script');
-        script.src = `${SCRIPT_URL}?${params.toString()}`;
-        script.onerror = () => { delete window[callbackName]; reject(new Error('Сетевая ошибка')); };
-        document.body.appendChild(script);
-        setTimeout(() => {
-            if (window[callbackName]) {
-                delete window[callbackName];
-                reject(new Error('Таймаут запроса'));
-            }
-        }, 25000);
-    });
-}
+        $("#tournamentList").html("");
+        $("#tournamentInput")[0].value = tables.LOGOS.at(-1)[0];
+        $("#logoRightInput")[0].value = tables.LOGOS.at(-1)[1];
 
-function applyFilters() {
-    const statusFilter = document.getElementById('statusFilter').value;
-    const clubFilter = document.getElementById('clubFilter').value;
-    const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-    
-    let filteredOrders = [...allOrders];
-    
-    if (statusFilter === 'active') {
-        filteredOrders = filteredOrders.filter(order => order.status === 'Активно' || order.status === 'Активен' || !order.status || order.status === '');
-    } else if (statusFilter === 'delivered') {
-        filteredOrders = filteredOrders.filter(order => order.status === 'Доставлено');
-    }
-    
-    if (clubFilter !== 'all') {
-        filteredOrders = filteredOrders.filter(order => order.club === clubFilter);
-    }
-    
-    if (searchQuery) {
-        filteredOrders = filteredOrders.filter(order => 
-            (order.partNumber && order.partNumber.toLowerCase().includes(searchQuery)) ||
-            (order.club && order.club.toLowerCase().includes(searchQuery))
+        tables.LOGOS.reverse().forEach((r) => {
+            if (r[0] !== "CSPORTS_LOGO")
+                $("#tournamentList").append(
+                    `<option value="${r[0]}"></option>`,
+                );
+        });
+
+        $("#mapInput").html("");
+        tables.MAPS.forEach((r) =>
+            $("#mapInput").append(`<option value="${r[0]}">${r[0]}</option>`),
         );
-    }
-    
-    renderOrders(filteredOrders);
-}
 
-// Загрузка данных (только один раз при входе)
-async function loadOrdersOnce() {
-    try {
-        const orders = await callScriptAsync('getOrders');
-        if (orders && !orders.error) {
-            allOrders = Array.isArray(orders) ? orders : [];
-            applyFilters();
-            showToast(`✅ Загружено ${allOrders.length} заказов`, false);
-        }
-    } catch(err) {
-        console.error('Ошибка загрузки:', err);
-        const container = document.getElementById('ordersList');
-        if (container) {
-            container.innerHTML = `<div class="empty-state">⚠️ Ошибка: ${err.message}<br><br><button onclick="location.reload()" style="margin-top:15px;width:auto;padding:8px 20px;">Обновить страницу</button></div>`;
-        }
-        showToast(`❌ Ошибка загрузки`, true);
+        const csLogo = tables.LOGOS.find((r) => r[0] === "CSPORTS_LOGO");
+        if (csLogo) $("#logoLeft").attr("src", csLogo[1]);
+
+        showStatus("Базы данных успешно загружены!", "success");
+    } catch (e) {
+        showStatus("Ошибка загрузки БД: " + e.message, "error");
     }
 }
 
-// КНОПКА ОБНОВИТЬ - МГНОВЕННО ПОКАЗЫВАЕТ ТО, ЧТО УЖЕ ЕСТЬ
-// НИКАКИХ ЗАПРОСОВ, НИКАКИХ СПИННЕРОВ!
-function manualRefresh() {
-    if (allOrders.length > 0) {
-        // Просто обновляем отображение из уже загруженных данных
-        applyFilters();
-        showToast(`📋 Показано ${allOrders.length} заказов (мгновенно)`, false);
+// --- 3. UI EVENT HANDLERS ---
+$(document).on("input", ".controls", () => handleUpdate());
+
+$("#tournamentInput").on("input", function () {
+    const tName = $(this).val().trim();
+    const logoRow = tables.LOGOS.find((r) => r[0] === tName);
+    if (logoRow) $("#logoRightInput").val(logoRow[1]);
+});
+
+$("#tournamentSelect").on("change", function () {
+    const val = $(this).val();
+    if (val) {
+        $("#tournamentInput").val(val).trigger("input");
+    }
+});
+
+$("#saveTournamentBtn").on("click", async function () {
+    const id = $("#tournamentInput").val().trim();
+    const url = $("#logoRightInput").val().trim();
+    if (!id) return;
+    $(this).text("⏳");
+    await apiCall({
+        operation: "UPSERT",
+        sheetName: "LOGOS",
+        keyColumnIndex: 0,
+        keyMatchValue: id,
+        rowData: [id, url],
+    });
+    $(this).text("💾");
+    showStatus("Турнир сохранен!", "success");
+});
+
+$("#reloadAllBtn").on("click", loadAllSheets);
+
+// --- 4. DATA PROCESSING ---
+async function handleUpdate() {
+    const rawData = $("#inputData").val().trim();
+    if (!rawData) return;
+    currentParse = parseData(rawData);
+    await enforceTeamModal(currentParse.team1Name);
+    await enforceTeamModal(currentParse.team2Name);
+    renderBoard();
+}
+
+function parseData(rawText) {
+    const text = rawText
+        .replace(/\u00A0/g, " ")
+        .replace(/\(.*?\)/g, " ")
+        .replace(/[%]/g, " ")
+        .replace(/:/g, " ")
+        .replace(/[\r\n\t]+/g, " ")
+        .replace(/\s{2,}/g, " ")
+        .trim();
+    const fmt2 =
+        /(?<name>[A-Za-z0-9_.-]{1,20})\s+\d+\s+\d+\s+\d+\s+(?<kast>\d+(?:\.\d+)?)\s+\d+\s+(?<k>\d+)\s+(?<a>\d+)\s+(?<d>\d+)\s+(?<adr>\d+(?:\.\d+)?)(?:\s+[-+]?\d+(?:\.\d+)?)?\s+(?<rating>\d+(?:\.\d+)?)/g;
+    const fmt1 =
+        /(?<name>[A-Za-z0-9_.-]{1,20})\s+(?<k>\d+)\s+(?<a>\d+)\s+(?<d>\d+)\s+(?<adr>\d+(?:\.\d+)?)\s+(?<kast>\d+(?:\.\d+)?)(?:\s+[-+]?\d+(?:\.\d+)?)?\s+(?<rating>\d+(?:\.\d+)?)/g;
+
+    let players = [],
+        match;
+    while ((match = fmt2.exec(text)) !== null)
+        players.push({
+            ...match.groups,
+            index: match.index,
+            end: match.index + match[0].length,
+        });
+    if (players.length === 0)
+        while ((match = fmt1.exec(text)) !== null)
+            players.push({
+                ...match.groups,
+                index: match.index,
+                end: match.index + match[0].length,
+            });
+
+    let team1Name = "Team 1",
+        team2Name = "Team 2";
+    const cleanTeam = (str) => {
+        let name = str.trim();
+        const half = Math.floor(name.length / 2);
+        return half > 0 && name.substring(0, half) === name.substring(half)
+            ? name.substring(0, half)
+            : name;
+    };
+
+    if (players.length > 0)
+        team1Name =
+            cleanTeam(
+                text
+                    .substring(0, players[0].index)
+                    .split(/Op\.|K-D|\bK\b\s+\bA\b\s+\bD\b/)[0],
+            ) || "Team 1";
+    if (players.length >= 6)
+        team2Name =
+            cleanTeam(
+                text
+                    .substring(players[4].end, players[5].index)
+                    .split(/Op\.|K-D|\bK\b\s+\bA\b\s+\bD\b/)[0],
+            ) || "Team 2";
+
+    const result = { team1Name, team2Name, team1Players: [], team2Players: [] };
+    const formatP = (p) => ({
+        name: p.name,
+        stats: {
+            k: parseInt(p.k),
+            a: parseInt(p.a),
+            d: parseInt(p.d),
+            adr: parseFloat(p.adr).toFixed(1),
+            kast: parseFloat(p.kast).toFixed(1) + "%",
+            rating: parseFloat(p.rating).toFixed(2),
+        },
+    });
+
+    result.team1Players = players.slice(0, 5).map(formatP);
+    result.team2Players = players.slice(5, 10).map(formatP);
+    const empty = () => ({
+        name: "",
+        stats: { k: "0", a: "0", d: "0", adr: "", kast: "", rating: "" },
+    });
+    while (result.team1Players.length < 5) result.team1Players.push(empty());
+    while (result.team2Players.length < 5) result.team2Players.push(empty());
+    return result;
+}
+
+// --- 5. UI RENDERING ---
+function renderBoard() {
+    $("#tournamentName").text($("#tournamentInput").val());
+    $("#logoRight").attr("src", $("#logoRightInput").val());
+    $("#score1").text($("#score1Input").val());
+    $("#score2").text($("#score2Input").val());
+    $("#mapName").text($("#mapInput").val());
+
+    const mapRow = tables.MAPS.find((r) => r[0] === $("#mapInput").val());
+    if (mapRow) {
+        $("#mapOverlay").css("background-image", `url('${mapRow[1]}')`).show();
     } else {
-        showToast(`📭 Нет загруженных данных, подождите...`, false);
+        $("#mapOverlay").hide();
     }
+
+    renderTeam("team1", currentParse.team1Name, currentParse.team1Players);
+    renderTeam("team2", currentParse.team2Name, currentParse.team2Players);
 }
 
-async function saveOrder() {
-    const club = document.getElementById('clubSelect').value;
-    const partNumber = document.getElementById('partNumber').value.trim();
-    const quantity = parseInt(document.getElementById('quantity').value);
-    
-    if (!club) { showToast('❌ Выберите клуб', true); return; }
-    if (!partNumber) { showToast('❌ Введите номер детали', true); return; }
-    if (isNaN(quantity) || quantity <= 0) { showToast('❌ Корректное количество', true); return; }
-    
-    const btn = document.getElementById('saveOrderBtn');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Сохранение...';
-    btn.disabled = true;
-    
-    try {
-        const now = new Date();
-        const result = await callScriptAsync('addOrder', { 
-            partNumber, quantity, club, timestamp: now.toISOString()
-        });
-        
-        if (result && result.error) throw new Error(result.error);
-        
-        showToast(`✅ Заказ для ${club}: ${partNumber} (${quantity} шт.) добавлен!`);
-        
-        document.getElementById('partNumber').value = '';
-        document.getElementById('quantity').value = '1';
-        document.getElementById('clubSelect').value = '';
-        
-        // Перезагружаем данные после сохранения
-        await loadOrdersOnce();
-        
-    } catch(err) {
-        showToast(`❌ Ошибка: ${err.message}`, true);
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+function renderTeam(prefix, fullName, players) {
+    let tName = fullName,
+        tLogo = "";
+    const tRow = tables.TEAMS.find(
+        (r) => r[0].toLowerCase() === fullName.toLowerCase(),
+    );
+    if (tRow) {
+        if (tRow[1]) tName = tRow[1];
+        if (tRow[2]) tLogo = tRow[2];
     }
-}
 
-async function updateStatus(row, newStatus, selectElement) {
-    if (!selectElement) return;
-    
-    const originalValue = selectElement.value;
-    selectElement.disabled = true;
-    selectElement.style.opacity = '0.6';
-    
-    try {
-        const result = await callScriptAsync('updateStatus', { row, status: newStatus });
-        if (result && result.error) throw new Error(result.error);
-        
-        const orderIndex = allOrders.findIndex(order => order.row === row);
-        if (orderIndex !== -1) {
-            allOrders[orderIndex].status = newStatus;
-        }
-        applyFilters();
-        showToast(`✅ Статус изменён на "${newStatus}"`);
-    } catch(err) {
-        showToast(`❌ Ошибка: ${err.message}`, true);
-        selectElement.value = originalValue;
-    } finally {
-        selectElement.disabled = false;
-        selectElement.style.opacity = '1';
-    }
-}
+    const $header = $(`#${prefix}Header`).empty();
+    const $div = $("<div>").addClass("team-cell");
+    if (tLogo)
+        $div.append($("<img>").attr("src", tLogo).addClass("team-logo-img"));
+    $div.append($("<span>").text(tName));
+    $header.append($div);
 
-async function deleteOrder(row, cardElement) {
-    if (!confirm('Удалить заказ навсегда?')) return;
-    
-    const card = cardElement.closest('.card');
-    if (card) {
-        card.style.opacity = '0.5';
-        card.style.pointerEvents = 'none';
-    }
-    
-    try {
-        const result = await callScriptAsync('deleteOrder', { row });
-        if (result && result.error) throw new Error(result.error);
-        
-        const orderIndex = allOrders.findIndex(order => order.row === row);
-        if (orderIndex !== -1) {
-            allOrders.splice(orderIndex, 1);
-        }
-        applyFilters();
-        showToast('🗑 Заказ удалён');
-    } catch(err) {
-        showToast(`Ошибка: ${err.message}`, true);
-        if (card) {
-            card.style.opacity = '1';
-            card.style.pointerEvents = 'auto';
-        }
-    }
-}
-
-function renderOrders(orders) {
-    const container = document.getElementById('ordersList');
-    if (!container) return;
-    
-    if (!orders || orders.length === 0) {
-        const statusFilter = document.getElementById('statusFilter').value;
-        let message = '';
-        if (statusFilter === 'active') message = 'Нет активных заказов';
-        else if (statusFilter === 'delivered') message = 'Нет доставленных заказов';
-        else message = 'Нет заказов';
-        
-        container.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i> ${message}.</div>`;
-        return;
-    }
-    
-    container.innerHTML = '';
-    orders.forEach(order => {
-        const card = document.createElement('div'); 
-        card.className = 'card';
-        card.setAttribute('data-row', order.row);
-        
-        let dateStr = '—';
-        if (order.timestamp) {
-            try {
-                const date = new Date(order.timestamp);
-                dateStr = formatDateTime(date);
-            } catch(e) { dateStr = '—'; }
-        }
-        
-        const table = document.createElement('table'); 
-        table.className = 'order-table';
-        const currentStatus = order.status || 'Активно';
-        
-        const rows = [
-            { label: 'Номер детали', value: order.partNumber || '—' },
-            { label: 'Количество', value: `${order.quantity} шт.` },
-            { label: 'Боулинг-клуб', value: order.club || '—' },
-            { label: 'Дата и время заказа', value: dateStr }
-        ];
-        
-        rows.forEach(r => {
-            const tr = document.createElement('tr');
-            const tdL = document.createElement('td'); tdL.textContent = r.label;
-            const tdV = document.createElement('td'); tdV.textContent = r.value;
-            tr.appendChild(tdL); tr.appendChild(tdV);
-            table.appendChild(tr);
-        });
-        
-        const statusTr = document.createElement('tr');
-        const statusTdL = document.createElement('td'); statusTdL.textContent = 'Статус';
-        const statusTdV = document.createElement('td');
-        
-        const select = document.createElement('select');
-        select.className = `status-select ${currentStatus === 'Доставлено' ? 'status-delivered' : 'status-pending'}`;
-        select.innerHTML = `
-            <option value="Активно" ${currentStatus === 'Активно' ? 'selected' : ''}>🟠 Активно</option>
-            <option value="Доставлено" ${currentStatus === 'Доставлено' ? 'selected' : ''}>✅ Доставлено</option>
-        `;
-        select.onchange = (e) => {
-            e.stopPropagation();
-            updateStatus(order.row, select.value, select);
-        };
-        
-        statusTdV.appendChild(select);
-        statusTr.appendChild(statusTdL);
-        statusTr.appendChild(statusTdV);
-        table.appendChild(statusTr);
-        
-        card.appendChild(table);
-        
-        const actionDiv = document.createElement('div'); 
-        actionDiv.className = 'action-bar';
-        const deleteBtn = document.createElement('button'); 
-        deleteBtn.textContent = '🗑 Удалить'; 
-        deleteBtn.className = 'action-btn delete-btn';
-        deleteBtn.onclick = () => deleteOrder(order.row, card);
-        actionDiv.appendChild(deleteBtn);
-        card.appendChild(actionDiv);
-        container.appendChild(card);
+    const $body = $(`#${prefix}Body`).empty();
+    players.forEach((p) => {
+        const ratingNum = parseFloat(p.stats.rating);
+        const ratingClass = isNaN(ratingNum)
+            ? ""
+            : ratingNum >= 1
+              ? "rating-high"
+              : "rating-low";
+        $body.append(
+            `<tr><td colspan="2" class="team-name"><div class="team-cell"><span>${p.name}</span></div></td><td>${p.stats.k}</td><td>${p.stats.a}</td><td>${p.stats.d}</td><td>${p.stats.adr}</td><td>${p.stats.kast}</td><td class="${ratingClass}">${p.stats.rating}</td></tr>`,
+        );
     });
 }
 
-// ========== АВТОРИЗАЦИЯ ==========
-function loadSheetsAPI() { 
-    return new Promise((resolve, reject) => { 
-        gapi.load('client', { callback: resolve, onerror: reject, timeout: 10000 }); 
-    }); 
-}
+// --- 6. UTILITIES (API, Modal, Save) ---
+async function enforceTeamModal(teamName) {
+    if (!teamName || teamName === "Team 1" || teamName === "Team 2") return;
+    if (tables.TEAMS.find((r) => r[0].toLowerCase() === teamName.toLowerCase()))
+        return;
 
-function handleCredentialResponse(response) {
-    try {
-        const payload = parseJwt(response.credential);
-        currentUser = { email: payload.email.toLowerCase().trim(), name: payload.name, picture: payload.picture };
-        showLoadingAuth(true);
-        initAndCheckEmail();
-    } catch(e) { 
-        showLoadingAuth(false); 
-        alert('Ошибка входа'); 
-    }
-}
-
-function showLoadingAuth(show) {
-    const container = document.getElementById('login-container');
-    if (show && container) {
-        if (!container.hasAttribute('data-original')) container.setAttribute('data-original', container.innerHTML);
-        container.innerHTML = '<div style="padding:40px;"><div class="loading-spinner"></div><br>Проверка доступа...</div>';
-    } else if (container && container.getAttribute('data-original')) {
-        container.innerHTML = container.getAttribute('data-original');
-        if (window.google?.accounts?.id) {
-            google.accounts.id.renderButton(document.querySelector('.g_id_signin'), { 
-                type:'standard', shape:'pill', theme:'outline', text:'signin_with', size:'large' 
+    $("#modalTeamNameLabel").text(teamName);
+    $("#teamModal").css("display", "flex");
+    $("#saveTeamBtn")
+        .off("click")
+        .on("click", async function () {
+            const sName = $("#modalShortName").val(),
+                url = $("#modalTeamLogo").val();
+            await apiCall({
+                operation: "UPSERT",
+                sheetName: "TEAMS",
+                keyColumnIndex: 0,
+                keyMatchValue: teamName,
+                rowData: [teamName, sName, url],
             });
-        }
-    }
-}
-
-async function initAndCheckEmail() {
-    try {
-        await loadSheetsAPI();
-        await gapi.client.init({ apiKey: AUTH_API_KEY, discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'] });
-        await checkEmailAndSiteInSheet(currentUser.email);
-    } catch(err) { 
-        showLoadingAuth(false); 
-        alert('Ошибка API: ' + err.message); 
-    }
-}
-
-async function checkEmailAndSiteInSheet(email) {
-    try {
-        const resp = await gapi.client.sheets.spreadsheets.values.get({ 
-            spreadsheetId: AUTH_SPREADSHEET_ID, 
-            range: `${AUTH_SHEET_NAME}!A:C` 
+            tables.TEAMS.push([teamName, sName, url]);
+            $("#teamModal").hide();
+            handleUpdate();
         });
-        const rows = resp.result.values || [];
-        let hasAccess = false, foundName = null;
-        for (let row of rows) {
-            if (!row[0]) continue;
-            if (row[0].toLowerCase().trim() === email) { 
-                hasAccess = true; 
-                if(row[1]) foundName = row[1]; 
-                break; 
-            }
-        }
-        if (hasAccess) {
-            currentUserNameFromSheet = foundName || currentUser.name;
-            loginUser(currentUser);
-        } else { 
-            showLoadingAuth(false); 
-            alert('Нет доступа! Ваш email не авторизован.'); 
-        }
-    } catch(e) { 
-        showLoadingAuth(false); 
-        alert('Ошибка проверки таблицы: ' + e.message); 
-    }
 }
 
-async function loginUser(user) {
-    document.getElementById('login-section').style.display = 'none';
-    document.getElementById('user-info').style.display = 'flex';
-    document.getElementById('main-content').style.display = 'block';
-    document.getElementById('user-pic').src = user.picture;
-    document.getElementById('user-name').innerText = currentUserNameFromSheet || user.name;
-    document.getElementById('user-email').innerText = user.email;
-    
-    localStorage.setItem('userLoggedIn', 'true');
-    localStorage.setItem('userEmail', user.email);
-    localStorage.setItem('userName', user.name);
-    localStorage.setItem('userPic', user.picture);
-    
-    // Показываем индикатор загрузки ТОЛЬКО при первом входе
-    const container = document.getElementById('ordersList');
-    if (container) {
-        container.innerHTML = '<div class="empty-state"><div class="loading-spinner"></div><br>Загрузка данных...</div>';
-    }
-    
-    // Загружаем данные один раз
-    await loadOrdersOnce();
-}
+$("#saveDbBtn").on("click", async function () {
+    if (!currentParse) return;
 
-function parseJwt(token) {
+    const $btn = $(this);
+    const originalText = $btn.text();
+    $btn.text("Сохранение...").prop("disabled", true);
+
+    const tName = $("#tournamentInput").val(),
+        sheetName = `Результати ${tName}`,
+        day = $("#dayInput").val(),
+        map = $("#mapInput").val(),
+        ts = new Date().toISOString();
+
     try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g,'+').replace(/_/g,'/');
-        return JSON.parse(decodeURIComponent(atob(base64).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join('')));
-    } catch(e){ return {}; }
-}
+        await apiCall({
+            operation: "CREATE_TABLE",
+            sheetName: sheetName,
+            headers: [
+                "Player name",
+                "Team name",
+                "Opponent team",
+                "Day",
+                "Map name",
+                "Op.K-D",
+                "MKs",
+                "KAST",
+                "1vsX",
+                "K (hs)",
+                "A (f)",
+                "D (t)",
+                "ADR",
+                "Swing",
+                "Rating3.0",
+                "Created at",
+            ],
+        });
+    } catch (e) {}
 
-function signOut() { 
-    localStorage.clear(); 
-    if(google?.accounts?.id) google.accounts.id.disableAutoSelect(); 
-    location.reload(); 
-}
+    const rows = [];
+    currentParse.team1Players.forEach((p) =>
+        rows.push([
+            p.name,
+            currentParse.team1Name,
+            currentParse.team2Name,
+            day,
+            map,
+            "",
+            "",
+            p.stats.kast,
+            "",
+            p.stats.k,
+            p.stats.a,
+            p.stats.d,
+            "'" + p.stats.adr,
+            "",
+            "'" + p.stats.rating,
+            ts,
+        ]),
+    );
+    currentParse.team2Players.forEach((p) =>
+        rows.push([
+            p.name,
+            currentParse.team2Name,
+            currentParse.team1Name,
+            day,
+            map,
+            "",
+            "",
+            p.stats.kast,
+            "",
+            p.stats.k,
+            p.stats.a,
+            p.stats.d,
+            "'" + p.stats.adr,
+            "",
+            "'" + p.stats.rating,
+            ts,
+        ]),
+    );
 
-window.saveOrder = saveOrder;
-window.updateStatus = updateStatus;
-window.deleteOrder = deleteOrder;
-window.signOut = signOut;
-window.handleCredentialResponse = handleCredentialResponse;
-window.applyFilters = applyFilters;
-window.manualRefresh = manualRefresh;
-
-// ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
-window.addEventListener('load', async () => {
-    const logged = localStorage.getItem('userLoggedIn') === 'true';
-    const savedEmail = localStorage.getItem('userEmail');
-    
-    if (logged && savedEmail) {
-        document.getElementById('login-section').style.display = 'none';
-        document.getElementById('user-info').style.display = 'flex';
-        document.getElementById('main-content').style.display = 'block';
-        document.getElementById('user-pic').src = localStorage.getItem('userPic') || '';
-        document.getElementById('user-name').innerText = localStorage.getItem('userName') || 'User';
-        document.getElementById('user-email').innerText = savedEmail;
-        
-        currentUser = { 
-            email: savedEmail, 
-            name: localStorage.getItem('userName'), 
-            picture: localStorage.getItem('userPic') 
-        };
-        
-        try {
-            await loadSheetsAPI();
-            await gapi.client.init({ apiKey: AUTH_API_KEY, discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'] });
-            
-            const resp = await gapi.client.sheets.spreadsheets.values.get({ 
-                spreadsheetId: AUTH_SPREADSHEET_ID, 
-                range: `${AUTH_SHEET_NAME}!A:C` 
-            });
-            const rows = resp.result.values || [];
-            let hasAccess = false;
-            for (let row of rows) {
-                if (row[0] && row[0].toLowerCase().trim() === savedEmail.toLowerCase().trim()) { 
-                    hasAccess = true; 
-                    break; 
-                }
-            }
-            
-            if (hasAccess) {
-                const container = document.getElementById('ordersList');
-                if (container) {
-                    container.innerHTML = '<div class="empty-state"><div class="loading-spinner"></div><br>Загрузка данных...</div>';
-                }
-                await loadOrdersOnce();
-            } else {
-                showToast('❌ Нет доступа к таблице', true);
-                document.getElementById('ordersList').innerHTML = '<div class="empty-state">⛔ Нет доступа к таблице</div>';
-            }
-        } catch(err) {
-            console.error('Ошибка инициализации:', err);
-            document.getElementById('ordersList').innerHTML = `<div class="empty-state">⚠️ Ошибка: ${err.message}<br><br><button onclick="location.reload()" style="margin-top:15px;width:auto;padding:8px 20px;">Обновить страницу</button></div>`;
-        }
-    } else {
-        document.getElementById('login-section').style.display = 'flex';
-        if (google?.accounts?.id) {
-            google.accounts.id.initialize({ 
-                client_id: '328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com', 
-                callback: handleCredentialResponse 
-            });
-            google.accounts.id.renderButton(document.querySelector('.g_id_signin'), { 
-                type:'standard', shape:'pill', theme:'outline', text:'signin_with', size:'large' 
-            });
-        }
+    try {
+        await apiCall({
+            operation: "INSERT",
+            sheetName: sheetName,
+            rows: rows,
+        });
+        $btn.text("Сохранено!");
+    } catch (e) {
+        $btn.text("Ошибка");
+    } finally {
+        setTimeout(() => {
+            $btn.text(originalText).prop("disabled", false);
+        }, 1500);
     }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    const statusFilter = document.getElementById('statusFilter');
-    const clubFilter = document.getElementById('clubFilter');
-    const searchInput = document.getElementById('searchInput');
-    
-    if (statusFilter) statusFilter.addEventListener('change', applyFilters);
-    if (clubFilter) clubFilter.addEventListener('change', applyFilters);
-    if (searchInput) searchInput.addEventListener('keyup', applyFilters);
+async function apiCall(payload) {
+    payload.sheetId = SHEET_ID;
+    return $.ajax({
+        url: API_URL,
+        method: "POST",
+        dataType: "json",
+        contentType: "text/plain;charset=utf-8",
+        data: JSON.stringify(payload),
+    });
+}
+
+function showStatus(msg, type) {
+    const $st = $("#statusMessage")
+        .text(msg)
+        .removeClass("success error info")
+        .addClass(type)
+        .show();
+    setTimeout(() => $st.hide(), 5000);
+}
+
+$("#downloadBtn").on("click", function () {
+    const $btn = $(this).text("⏳ Создание...");
+    html2canvas(document.getElementById("board"), {
+        useCORS: true,
+        scale: 2,
+        backgroundColor: null,
+    }).then((canvas) => {
+        const link = document.createElement("a");
+        link.download = "mapstats-board.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        $btn.text("Скачать (PNG)");
+    });
 });
+$("#shareBtn").on("click", async function () {
+    try {
+        const canvas = await html2canvas(document.getElementById("board"), {
+            useCORS: true,
+            scale: 2,
+            backgroundColor: null,
+        });
+
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], "mapstats.png", {
+                type: "image/png",
+            });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file] });
+            } else {
+                showStatus("Ваш браузер не поддерживает Share API.", "error");
+            }
+        });
+    } catch (e) {
+        showStatus("Ошибка при попытке поделиться: " + e.message, "error");
+    }
+});
+$("#closeModalBtn").on("click", () => $("#teamModal").hide());
+
 </script>
-</body>
+    </body>
 </html>
