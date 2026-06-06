@@ -469,8 +469,8 @@ tbody .team-cell .team-logo-img {
                 </label>
 
                 <div class="action-buttons">
-                    <button id="updateBtn" class="primary-btn">
-                        Обновить статистику
+                    <button id="clearDataBtn" class="primary-btn">
+                        Стереть данные матча
                     </button>
                     <button id="reloadAllBtn" class="secondary-btn">
                         Перезагрузить данные
@@ -600,15 +600,17 @@ tbody .team-cell .team-logo-img {
         </div>
 
         <script>
-// --- 1. CONFIGURATION & STATE ---
 const API_URL =
     "https://script.google.com/macros/s/AKfycby47B5_u7CLZCiE2H__19zmCvZ6riW61m3cdkv15dCLSCqySl3u7XgVEkUjvYybMQji/exec";
 const SHEET_ID = "188jMHUJs1KkmCAzG7XZYTnTY9SnNIx0JlXJoEdMTees";
 let tables = { LOGOS: [], MAPS: [], TEAMS: [] };
 let currentParse = null;
 
-// --- 2. CORE INITIALIZATION ---
 $(document).ready(async function () {
+    const savedDay = localStorage.getItem("mapstats_day");
+    if (savedDay) {
+        $("#dayInput").val(savedDay);
+    }
     for (let idx = 1; idx <= 30; idx++) {
         $("#dayInput").append(`<option value="${idx}">${idx}</option>`);
     }
@@ -655,9 +657,17 @@ async function loadAllSheets() {
     }
 }
 
-// --- 3. UI EVENT HANDLERS ---
 $(document).on("input", ".controls", () => handleUpdate());
+$("#dayInput").on("input", function () {
+    localStorage.setItem("mapstats_day", $(this).val());
+});
 
+$("#clearDataBtn").on("click", function () {
+    $("#score1Input").val("0");
+    $("#score2Input").val("0");
+    $("#inputData").val("");
+    handleUpdate();
+});
 $("#tournamentInput").on("input", function () {
     const tName = $(this).val().trim();
     const logoRow = tables.LOGOS.find((r) => r[0] === tName);
@@ -689,10 +699,28 @@ $("#saveTournamentBtn").on("click", async function () {
 
 $("#reloadAllBtn").on("click", loadAllSheets);
 
-// --- 4. DATA PROCESSING ---
 async function handleUpdate() {
     const rawData = $("#inputData").val().trim();
-    if (!rawData) return;
+
+    if (!rawData) {
+        currentParse = {
+            team1Name: "Team 1",
+            team2Name: "Team 2",
+            team1Players: [],
+            team2Players: [],
+        };
+        const empty = () => ({
+            name: "",
+            stats: { k: "0", a: "0", d: "0", adr: "", kast: "", rating: "" },
+        });
+        while (currentParse.team1Players.length < 5)
+            currentParse.team1Players.push(empty());
+        while (currentParse.team2Players.length < 5)
+            currentParse.team2Players.push(empty());
+        renderBoard();
+        return;
+    }
+
     currentParse = parseData(rawData);
     await enforceTeamModal(currentParse.team1Name);
     await enforceTeamModal(currentParse.team2Name);
@@ -778,7 +806,6 @@ function parseData(rawText) {
     return result;
 }
 
-// --- 5. UI RENDERING ---
 function renderBoard() {
     $("#tournamentName").text($("#tournamentInput").val());
     $("#logoRight").attr("src", $("#logoRightInput").val());
@@ -829,7 +856,6 @@ function renderTeam(prefix, fullName, players) {
     });
 }
 
-// --- 6. UTILITIES (API, Modal, Save) ---
 async function enforceTeamModal(teamName) {
     if (!teamName || teamName === "Team 1" || teamName === "Team 2") return;
     if (tables.TEAMS.find((r) => r[0].toLowerCase() === teamName.toLowerCase()))
