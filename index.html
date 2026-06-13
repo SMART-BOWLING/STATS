@@ -737,9 +737,9 @@ function parseData(rawText) {
         .replace(/\s{2,}/g, " ")
         .trim();
     const fmt2 =
-        /(?<name>[A-Za-z0-9_.-]{1,20})\s+\d+\s+\d+\s+\d+\s+(?<kast>\d+(?:\.\d+)?)\s+\d+\s+(?<k>\d+)\s+(?<a>\d+)\s+(?<d>\d+)\s+(?<adr>\d+(?:\.\d+)?)(?:\s+[-+]?\d+(?:\.\d+)?)?\s+(?<rating>\d+(?:\.\d+)?)/g;
+        /(?<name>[A-Za-z0-9_.-]{1,20})\s+\d+\s+\d+\s+\d+\s+(?<kast>\d+\.\d+)\s+\d+\s+(?<k>\d+)\s+(?<a>\d+)\s+(?<d>\d+)\s+(?<adr>\d+\.\d+)(?:\s+[-+]?\d+(?:\.\d+)?)?\s+(?<rating>\d+\.\d+)/g;
     const fmt1 =
-        /(?<name>[A-Za-z0-9_.-]{1,20})\s+(?<k>\d+)\s+(?<a>\d+)\s+(?<d>\d+)\s+(?<adr>\d+(?:\.\d+)?)\s+(?<kast>\d+(?:\.\d+)?)(?:\s+[-+]?\d+(?:\.\d+)?)?\s+(?<rating>\d+(?:\.\d+)?)/g;
+        /(?<name>[A-Za-z0-9_.-]{1,20})\s+(?<k>\d+)\s+(?<a>\d+)\s+(?<d>\d+)\s+(?<adr>\d+\.\d+)\s+(?<kast>\d+\.\d+)(?:\s+[-+]?\d+(?:\.\d+)?)?\s+(?<rating>\d+\.\d+)/g;
 
     let players = [],
         match;
