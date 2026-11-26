@@ -121,10 +121,13 @@
     <div class="controls">
         <label class="row-label"><span>Турнир:</span><select data-ref="tournament"></select></label>
         <label class="row-label"><span>Команда:</span><select data-ref="team"></select></label>
-        <label class="col-label"><span>Шаблон заголовка:</span><input type="text" data-ref="titleTpl" value="{team} HA {tournament}" /></label>
-        <label class="col-label"><span>Заголовок:</span><input type="text" data-ref="titleText" /></label>
+        <details class="col-label">
+            <summary>Заголовок, игроки и серии</summary>
+            <div class="flex flex-col gap-3 pt-2">
+        <label class="flex flex-col gap-2"><span>Шаблон заголовка:</span><input type="text" data-ref="titleTpl" value="{team} HA {tournament}" /></label>
+        <label class="flex flex-col gap-2"><span>Заголовок:</span><input type="text" data-ref="titleText" /></label>
         <div data-ref="roster" class="controls"></div>
-        <div class="col-label">
+        <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between gap-2">
                 <span>Серии на картинке:</span>
                 <span class="flex gap-1">
@@ -134,6 +137,8 @@
             </div>
             <div data-ref="series" class="flex max-h-80 flex-col gap-1 overflow-y-auto"></div>
         </div>
+            </div>
+        </details>
         <details class="col-label"><summary>Логотипы команд</summary><div data-ref="logos" class="controls"></div></details>
         <div class="action-buttons">
             <button data-ref="refreshData" class="secondary-btn">Обновить данные из таблицы</button>
